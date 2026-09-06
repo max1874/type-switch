@@ -1,0 +1,12 @@
+.DS_Store
+.idea/
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+build/
+DerivedData/
+
+# API key — copy Secrets.swift.example to create this
+TypeSwitch/Secrets.swift
