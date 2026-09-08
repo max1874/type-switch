@@ -82,6 +82,11 @@ create-dmg \
     "$dmg" \
     "$app" >/dev/null
 
+# create-dmg produces an unsigned image. Notarization and stapling work on one
+# regardless, but an unsigned image has nothing for Gatekeeper to assess on its
+# own, so signing it is what makes the download itself verifiable.
+codesign --force --timestamp --sign "$identity" "$dmg"
+
 # --- Notarize --------------------------------------------------------------
 # The DMG is what people download, so the DMG is what gets stapled. Notarizing
 # it covers the app inside it.
