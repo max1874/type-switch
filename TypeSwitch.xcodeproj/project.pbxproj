@@ -8,6 +8,7 @@
 
 /* Begin PBXFileReference section */
 		1A0000000000000000000005 /* TypeSwitch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TypeSwitch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A0000000000000000000010 /* TypeSwitch.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = TypeSwitch.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -33,8 +34,17 @@
 			isa = PBXGroup;
 			children = (
 				1A0000000000000000000006 /* TypeSwitch */,
+				1A0000000000000000000011 /* Config */,
 				1A0000000000000000000004 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		1A0000000000000000000011 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				1A0000000000000000000010 /* TypeSwitch.xcconfig */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 		1A0000000000000000000004 /* Products */ = {
@@ -84,10 +94,11 @@
 				};
 			};
 			buildConfigurationList = 1A000000000000000000000A /* Build configuration list for PBXProject "TypeSwitch" */;
-			developmentRegion = en;
+			developmentRegion = "zh-Hans";
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				"zh-Hans",
 				Base,
 			);
 			mainGroup = 1A0000000000000000000003;
@@ -165,14 +176,12 @@
 			name = Release;
 		};
 		1A000000000000000000000E /* Debug */ = {
+			baseConfigurationReference = 1A0000000000000000000010 /* TypeSwitch.xcconfig */;
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Apple Development: YOUXIANG LIN (AY8BYFWD53)";
-				CODE_SIGN_STYLE = Manual;
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4V5KP842PK;
 				ENABLE_HARDENED_RUNTIME = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSUIElement = YES;
@@ -186,14 +195,12 @@
 			name = Debug;
 		};
 		1A000000000000000000000F /* Release */ = {
+			baseConfigurationReference = 1A0000000000000000000010 /* TypeSwitch.xcconfig */;
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Apple Development: YOUXIANG LIN (AY8BYFWD53)";
-				CODE_SIGN_STYLE = Manual;
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4V5KP842PK;
 				ENABLE_HARDENED_RUNTIME = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSUIElement = YES;

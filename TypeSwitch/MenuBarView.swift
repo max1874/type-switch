@@ -4,16 +4,14 @@ struct MenuBarView: View {
     @ObservedObject var state: AppState
 
     var body: some View {
-        Text(state.status.label)
-
-        if let result = state.lastResult {
+        // Only speak up when something is wrong. Reporting "ready" on every
+        // open is noise, and the trigger is already spelled out in Settings.
+        if case .idle = state.status {} else {
+            Text(state.status.label)
             Divider()
-            Text("上次：\(result)")
         }
 
-        Divider()
-
-        SettingsLink { Text("设置…") }
+        Button("设置…") { SettingsWindow.open() }
             .keyboardShortcut(",")
 
         if !Permissions.hasAccessibility {

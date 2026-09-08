@@ -1,0 +1,15 @@
+// Copy to Config/Local.xcconfig to sign with your own developer account.
+// Config/Local.xcconfig is gitignored, so your team ID stays out of the repo.
+//
+//     cp Config/Local.xcconfig.example Config/Local.xcconfig
+//
+// Your team ID is the OU field of your certificate, not the ID in parentheses
+// after your name:
+//
+//     security find-identity -v -p codesigning
+//     security find-certificate -c "Apple Development: YOUR NAME (XXXXXXXXXX)" -p \
+//       | openssl x509 -noout -subject
+
+CODE_SIGN_STYLE = Manual
+CODE_SIGN_IDENTITY = Apple Development: YOUR NAME (XXXXXXXXXX)
+DEVELOPMENT_TEAM = YOURTEAMID

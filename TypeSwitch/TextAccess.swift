@@ -32,12 +32,12 @@ enum TextAccessError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .noFocusedElement: "找不到当前输入框"
-        case .noText: "当前位置没有可转换的文字"
-        case .pasteboardTimeout: "读取文字超时"
-        case .axWriteFailed(let err): "写回失败（AXError \(err.rawValue)）"
-        case .appChanged: "焦点已经切走，没有写回"
-        case .contentChanged: "文字已经被改动，没有写回"
+        case .noFocusedElement: String(localized: "找不到当前输入框")
+        case .noText: String(localized: "当前位置没有可转换的文字")
+        case .pasteboardTimeout: String(localized: "读取文字超时")
+        case .axWriteFailed(let err): String(localized: "写回失败（AXError \(Int(err.rawValue))）")
+        case .appChanged: String(localized: "焦点已经切走，没有写回")
+        case .contentChanged: String(localized: "文字已经被改动，没有写回")
         }
     }
 }

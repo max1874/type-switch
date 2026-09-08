@@ -4,12 +4,18 @@ enum RewriteError: LocalizedError {
     case http(Int, String)
     case emptyResponse
     case transport(String)
+    case nothingToRewrite
+    case badProviderURL(String)
+    case missingAPIKey
 
     var errorDescription: String? {
         switch self {
-        case .http(let code, let message): "接口返回 \(code)：\(message)"
-        case .emptyResponse: "接口没有返回内容"
-        case .transport(let message): "网络错误：\(message)"
+        case .missingAPIKey: String(localized: "还没填 API Key，去设置里填一个")
+        case .nothingToRewrite: String(localized: "这一行没有可转换的文字")
+        case .badProviderURL(let url): String(localized: "接口地址无效：\(url)")
+        case .http(let code, let message): String(localized: "接口返回 \(code)：\(message)")
+        case .emptyResponse: String(localized: "接口没有返回内容")
+        case .transport(let message): String(localized: "网络错误：\(message)")
         }
     }
 }
@@ -20,51 +26,73 @@ enum RewriteError: LocalizedError {
 /// and the text is written back in one call anyway, so streaming would only add
 /// parsing complexity without changing what the user sees.
 enum Rewriter {
-    private static let endpoint = URL(string: "https://api.deepseek.com/chat/completions")!
-    private static let model = "deepseek-v4-flash"
-    private static let apiKey = Secrets.deepSeekAPIKey
+    /// OpenAI-compatible chat completions, which is what DeepSeek, OpenAI,
+    /// Moonshot, and local Ollama/LM Studio all speak.
+    private static func endpoint(for provider: AIProvider) throws -> URL {
+        let base = provider.baseURL.trimmingCharacters(in: .whitespaces)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        guard let url = URL(string: base + "/chat/completions") else {
+            throw RewriteError.badProviderURL(provider.baseURL)
+        }
+        return url
+    }
 
-    private static let systemPrompt = """
-    You rewrite text into natural, idiomatic English.
+    /// `{{language}}` is replaced with the configured target language, so the
+    /// app is not hard-wired to one language pair. The writer's own language is
+    /// never named — whatever they fell back to is inferred from the input.
+    static let languagePlaceholder = "{{language}}"
 
-    The input comes from someone writing in English who switched to Chinese or \
-    pinyin at the points where they got stuck. Their English fragments are \
-    usually fine — keep them, and replace only what needs replacing. If the \
-    input is entirely Chinese, translate the whole thing.
+    static let defaultSystemPrompt = """
+    You rewrite text into natural, idiomatic \(languagePlaceholder).
 
-    Match the register of the surrounding English: casual stays casual, formal \
+    The input comes from someone writing in \(languagePlaceholder) who switched \
+    to another language at the points where they got stuck. Their \
+    \(languagePlaceholder) fragments are usually fine — keep them, and replace \
+    only what needs replacing. If the input is entirely in another language, \
+    translate all of it.
+
+    Match the register of the surrounding text: casual stays casual, formal \
     stays formal.
 
     Do not add ending punctuation the writer did not type. If the input ends \
     without a period or question mark, the output ends without one too — they \
     are still mid-sentence.
 
-    Output ONLY the rewritten sentence. No quotation marks around it, no \
+    Output ONLY the rewritten text. No quotation marks around it, no \
     explanation, no alternatives, no preamble.
     """
 
     static func rewrite(_ input: String) async throws -> String {
         let text = stripTriggerArtifacts(input)
-        guard !text.isEmpty else { throw RewriteError.emptyResponse }
+        guard hasWords(text) else { throw RewriteError.nothingToRewrite }
 
-        var request = URLRequest(url: endpoint)
+        let key = Prefs.apiKey
+        guard !key.isEmpty else { throw RewriteError.missingAPIKey }
+
+        let provider = Prefs.provider
+        var request = URLRequest(url: try endpoint(for: provider))
         request.httpMethod = "POST"
         request.timeoutInterval = 15
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
 
-        let body: [String: Any] = [
-            "model": model,
+        var body: [String: Any] = [
+            "model": provider.model,
             "max_tokens": 2048,
             "temperature": 0.3,
-            // Reasoning is on by default on v4-flash and costs ~0.35s here for
-            // no measurable quality gain on a one-sentence rewrite.
-            "thinking": ["type": "disabled"],
             "messages": [
-                ["role": "system", "content": systemPrompt],
+                ["role": "system", "content": Prefs.systemPrompt.replacingOccurrences(
+                    of: languagePlaceholder, with: Prefs.targetLanguage
+                )],
                 ["role": "user", "content": text],
             ],
         ]
+        // DeepSeek reasons by default, which measured ~0.35s slower with no
+        // quality gain on a one-sentence rewrite. The parameter is theirs alone —
+        // OpenAI rejects unknown arguments outright.
+        if provider.baseURL.localizedCaseInsensitiveContains("deepseek") {
+            body["thinking"] = ["type": "disabled"]
+        }
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let data: Data
@@ -92,6 +120,16 @@ enum Rewriter {
     }
 
     private static let sentenceEnders: Set<Character> = [".", "?", "!", "。", "？", "！"]
+
+    /// Whether there is anything worth sending.
+    ///
+    /// A shell prompt like "❯" survives an is-empty check but contains no
+    /// words, and the model answers a promptless request with "please share the
+    /// text you'd like me to rewrite" — which then gets written into the
+    /// document as if it were a result.
+    private static func hasWords(_ text: String) -> Bool {
+        text.unicodeScalars.count { CharacterSet.letters.contains($0) } >= 2
+    }
 
     /// Removes what the trigger itself typed into the line.
     ///

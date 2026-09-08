@@ -6,18 +6,70 @@ let log = Logger(subsystem: "com.youxianglin.TypeSwitch", category: "core")
 @main
 struct TypeSwitchApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
+    @AppStorage(PrefKey.showMenuBarIcon) private var showMenuBarIcon = true
 
     var body: some Scene {
-        MenuBarExtra {
+        MenuBarExtra(isInserted: $showMenuBarIcon) {
             MenuBarView(state: delegate.state)
         } label: {
             Image(systemName: delegate.state.status.symbolName)
         }
         .menuBarExtraStyle(.menu)
+    }
+}
 
-        Settings {
-            SettingsView()
-        }
+/// Settings live in a window this app owns outright.
+///
+/// SwiftUI's `Settings` scene never created a window in this LSUIElement app —
+/// neither `SettingsLink` nor `showSettingsWindow:` produced one (the window
+/// list showed only the menu bar extra's). An NSWindow built here always
+/// appears, and an accessory app has to activate itself to come to the front.
+@MainActor
+enum SettingsWindow {
+    private static var window: NSWindow?
+    private static let closer = WindowCloser()
+
+    static func open() {
+        let window = window ?? make()
+        Self.window = window
+
+        // An accessory app is absent from ⌘-Tab and the Dock, so once this
+        // window fell behind another app there was no way back to it. Become a
+        // regular app for as long as it is open.
+        NSApp.setActivationPolicy(.regular)
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+        log.info("settings window shown: \(NSStringFromRect(window.frame), privacy: .public)")
+    }
+
+    private static func make() -> NSWindow {
+        let hosting = NSHostingView(rootView: SettingsView())
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 660, height: 540),
+            styleMask: [.titled, .closable, .resizable, .fullSizeContentView],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = String(localized: "TypeSwitch 设置")
+        window.contentView = hosting
+        window.isReleasedWhenClosed = false   // reopened, not rebuilt
+
+        // Let the sidebar's material run the full height of the window, which is
+        // what separates a current-looking settings window from a plain one.
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
+        window.toolbarStyle = .unified
+        window.delegate = closer   // delegate is weak; `closer` is held above
+
+        window.center()
+        return window
+    }
+}
+
+/// Drops back to a menu bar–only app when the settings window closes.
+private final class WindowCloser: NSObject, NSWindowDelegate {
+    func windowWillClose(_ notification: Notification) {
+        NSApp.setActivationPolicy(.accessory)
     }
 }
 
@@ -28,8 +80,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var permissionPoll: Timer?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        Prefs.registerDefaults()
         Permissions.requestAccessibility()
         Permissions.requestInputMonitoring()
+
+        // With the icon hidden there is nothing else to show for a launch.
+        if !UserDefaults.standard.bool(forKey: PrefKey.showMenuBarIcon) {
+            openSettings()
+        }
 
         monitor = HotkeyMonitor { [weak self] in
             self?.handleTrigger()
@@ -45,6 +103,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
     }
+
+    /// The way back in once the menu bar icon is hidden: opening the app again
+    /// brings up settings instead of doing nothing visible.
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
+        openSettings()
+        return true
+    }
+
+    private func openSettings() { SettingsWindow.open() }
 
     @discardableResult
     private func startMonitoring() -> Bool {
@@ -90,7 +157,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let ms = Int(Date().timeIntervalSince(started) * 1000)
             log.info("rewrote in \(ms, privacy: .public)ms: \(rewritten, privacy: .public)")
             state.status = .idle
-            state.lastResult = "\(capture.text) → \(rewritten)"
         } catch {
             // Capture does not modify the document, so there is nothing to roll
             // back — the user's text is untouched wherever this failed.
@@ -103,7 +169,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 @MainActor
 final class AppState: ObservableObject {
     @Published var status: Status = .idle
-    @Published var lastResult: String?
 
     enum Status {
         case idle
@@ -122,10 +187,10 @@ final class AppState: ObservableObject {
 
         var label: String {
             switch self {
-            case .idle: "就绪 · 双击空格触发"
-            case .working: "处理中…"
-            case .needsPermission: "缺少权限"
-            case .error(let message): "出错：\(message)"
+            case .idle: String(localized: "就绪 · 连按 \(Prefs.triggerCount) 次「\(Prefs.trigger.label)」触发")
+            case .working: String(localized: "处理中…")
+            case .needsPermission: String(localized: "缺少权限")
+            case .error(let message): String(localized: "出错：\(message)")
             }
         }
     }

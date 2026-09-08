@@ -1,0 +1,16 @@
+// Signing.
+//
+// The default is ad-hoc, so the project builds and runs with no Apple
+// developer account at all. The cost is that the signature changes on every
+// build, and macOS ties Accessibility and Input Monitoring grants to the
+// signature — so you re-approve TypeSwitch each time you rebuild it.
+//
+// If you have a developer account, put your team in Config/Local.xcconfig
+// (gitignored) and the grants survive rebuilds. See Local.xcconfig.example.
+
+CODE_SIGN_STYLE = Manual
+CODE_SIGN_IDENTITY = -
+DEVELOPMENT_TEAM =
+PROVISIONING_PROFILE_SPECIFIER =
+
+#include? "Local.xcconfig"

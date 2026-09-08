@@ -1,0 +1,955 @@
+{
+  "sourceLanguage": "zh-Hans",
+  "strings": {
+    "": {},
+    "AI 服务": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI service"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 服务"
+          }
+        }
+      }
+    },
+    "API Key": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API Key"
+          }
+        }
+      }
+    },
+    "English": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "English"
+          }
+        }
+      }
+    },
+    "TypeSwitch 设置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TypeSwitch Settings"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TypeSwitch 设置"
+          }
+        }
+      }
+    },
+    "writing English 卡住了？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I need to 预约 a meeting tomorrow"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "writing English 卡住了？"
+          }
+        }
+      }
+    },
+    "任何兼容 OpenAI 格式的服务都可以填。Key 存在你的钥匙串里，只发给上面这个地址。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anything that speaks the OpenAI format works here. Your key is stored in your keychain and sent only to the address above."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "任何兼容 OpenAI 格式的服务都可以填。Key 存在你的钥匙串里，只发给上面这个地址。"
+          }
+        }
+      }
+    },
+    "修饰键不输入字符，不会在正文里留下痕迹。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A modifier key types nothing, so it leaves no trace in your text."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "修饰键不输入字符，不会在正文里留下痕迹。"
+          }
+        }
+      }
+    },
+    "关掉后，再次打开 TypeSwitch 会回到这个窗口。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "With the icon off, opening TypeSwitch again brings you back to this window."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关掉后，再次打开 TypeSwitch 会回到这个窗口。"
+          }
+        }
+      }
+    },
+    "写回失败（AXError %lld）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not write the text back (AXError %lld)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "写回失败（AXError %lld）"
+          }
+        }
+      }
+    },
+    "出错：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出错：%@"
+          }
+        }
+      }
+    },
+    "发给模型的原话，其中 %@ 会替换成上面的输出语言。删光等同于用回内置指令。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The exact wording sent to the model. %@ is replaced with the output language above. Clear the field to go back to the built-in instructions."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发给模型的原话，其中 %@ 会替换成上面的输出语言。删光等同于用回内置指令。"
+          }
+        }
+      }
+    },
+    "右 ⇧": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Right ⇧"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右 ⇧"
+          }
+        }
+      }
+    },
+    "右 ⌃": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Right ⌃"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右 ⌃"
+          }
+        }
+      }
+    },
+    "右 ⌘": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Right ⌘"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右 ⌘"
+          }
+        }
+      }
+    },
+    "右 ⌥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Right ⌥"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右 ⌥"
+          }
+        }
+      }
+    },
+    "在菜单栏显示图标": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show icon in the menu bar"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在菜单栏显示图标"
+          }
+        }
+      }
+    },
+    "地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Address"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地址"
+          }
+        }
+      }
+    },
+    "处理中…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Working…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "处理中…"
+          }
+        }
+      }
+    },
+    "就绪 · 连按 %lld 次「%@」触发": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "就绪 · 连按 %lld 次「%@」触发"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ready · %lld taps of “%@”"
+          }
+        }
+      }
+    },
+    "左 ⇧": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Left ⇧"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左 ⇧"
+          }
+        }
+      }
+    },
+    "左 ⌃": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Left ⌃"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左 ⌃"
+          }
+        }
+      }
+    },
+    "左 ⌘": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Left ⌘"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左 ⌘"
+          }
+        }
+      }
+    },
+    "左 ⌥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Left ⌥"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左 ⌥"
+          }
+        }
+      }
+    },
+    "开启辅助功能权限…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grant Accessibility permission…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开启辅助功能权限…"
+          }
+        }
+      }
+    },
+    "开启输入监控权限…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grant Input Monitoring permission…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开启输入监控权限…"
+          }
+        }
+      }
+    },
+    "当前位置没有可转换的文字": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There is no text to rewrite here"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前位置没有可转换的文字"
+          }
+        }
+      }
+    },
+    "恢复默认": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复默认"
+          }
+        }
+      }
+    },
+    "找不到当前输入框": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not find the focused text field"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "找不到当前输入框"
+          }
+        }
+      }
+    },
+    "按任意键…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press a key…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按任意键…"
+          }
+        }
+      }
+    },
+    "接口": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Endpoint"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接口"
+          }
+        }
+      }
+    },
+    "接口地址无效：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid endpoint address: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接口地址无效：%@"
+          }
+        }
+      }
+    },
+    "接口没有返回内容": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The endpoint returned nothing"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接口没有返回内容"
+          }
+        }
+      }
+    },
+    "接口返回 %lld：%@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接口返回 %lld：%@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The endpoint returned %lld: %@"
+          }
+        }
+      }
+    },
+    "改写指令": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rewrite instructions"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "改写指令"
+          }
+        }
+      }
+    },
+    "文字已经被改动，没有写回": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The text changed, so nothing was written back"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "文字已经被改动，没有写回"
+          }
+        }
+      }
+    },
+    "服务商": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Service"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "服务商"
+          }
+        }
+      }
+    },
+    "本地 Ollama": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local Ollama"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本地 Ollama"
+          }
+        }
+      }
+    },
+    "模型": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Model"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "模型"
+          }
+        }
+      }
+    },
+    "次，间隔": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "times within"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次，间隔"
+          }
+        }
+      }
+    },
+    "点一下，然后按你想用的键；Esc 取消": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click, then press the key you want. Esc cancels."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点一下，然后按你想用的键；Esc 取消"
+          }
+        }
+      }
+    },
+    "焦点已经切走，没有写回": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Focus moved away, so nothing was written back"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "焦点已经切走，没有写回"
+          }
+        }
+      }
+    },
+    "秒以内": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "seconds"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "秒以内"
+          }
+        }
+      }
+    },
+    "空格": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Space"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "空格"
+          }
+        }
+      }
+    },
+    "缺少权限": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Missing permissions"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "缺少权限"
+          }
+        }
+      }
+    },
+    "网络错误：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network error: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网络错误：%@"
+          }
+        }
+      }
+    },
+    "自定义": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定义"
+          }
+        }
+      }
+    },
+    "触发": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "触发"
+          }
+        }
+      }
+    },
+    "触发键": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger key"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "触发键"
+          }
+        }
+      }
+    },
+    "设置…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置…"
+          }
+        }
+      }
+    },
+    "试一句「%@」": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try “%@”"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "试一句「%@」"
+          }
+        }
+      }
+    },
+    "读取文字超时": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Timed out reading the text"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "读取文字超时"
+          }
+        }
+      }
+    },
+    "输出语言": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Output language"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输出语言"
+          }
+        }
+      }
+    },
+    "还没填 API Key，去设置里填一个": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No API key yet — add one in Settings"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没填 API Key，去设置里填一个"
+          }
+        }
+      }
+    },
+    "这一行没有可转换的文字": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing on this line to rewrite"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这一行没有可转换的文字"
+          }
+        }
+      }
+    },
+    "这个键会输入字符，多出来的会被整行替换掉。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This key types a character; the extra ones are replaced along with the line."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个键会输入字符，多出来的会被整行替换掉。"
+          }
+        }
+      }
+    },
+    "这是 macOS 的全局设置，改这里等同于改系统设置，影响所有 app。关掉后用空格触发不会再冒出句号；已经开着的 app 可能要重开才生效。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is a system-wide macOS setting, so changing it here is the same as changing it in System Settings and it affects every app. With it off, triggering with Space no longer leaves a stray period. Apps that are already running may need to be restarted."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这是 macOS 的全局设置，改这里等同于改系统设置，影响所有 app。关掉后用空格触发不会再冒出句号；已经开着的 app 可能要重开才生效。"
+          }
+        }
+      }
+    },
+    "连按": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连按"
+          }
+        }
+      }
+    },
+    "连按两次空格加句号": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Two spaces insert a period"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连按两次空格加句号"
+          }
+        }
+      }
+    },
+    "退出 TypeSwitch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit TypeSwitch"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出 TypeSwitch"
+          }
+        }
+      }
+    },
+    "键码 %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key code %lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "键码 %lld"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

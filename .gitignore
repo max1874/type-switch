@@ -8,5 +8,5 @@ xcuserdata/
 build/
 DerivedData/
 
-# API key — copy Secrets.swift.example to create this
-TypeSwitch/Secrets.swift
+# Your signing identity — copy Config/Local.xcconfig.example to create this
+Config/Local.xcconfig

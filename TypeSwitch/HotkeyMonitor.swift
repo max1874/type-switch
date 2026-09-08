@@ -1,15 +1,17 @@
 import AppKit
 import CoreGraphics
 
-/// Watches for three quick taps on the space bar.
+/// Watches for the configured key being tapped N times in quick succession.
 ///
-/// Every space is passed through untouched. A session tap sees keystrokes
+/// Every event is passed through untouched. A session tap sees keystrokes
 /// before the input method does, so swallowing a space would break candidate
-/// selection for anyone typing Chinese — which is exactly this app's user. The
-/// spaces the trigger leaves behind (including the ". " that
-/// `NSAutomaticPeriodSubstitutionEnabled` produces from the first two) sit at
-/// the end of the line we are about to replace wholesale, so they disappear
-/// with the rewrite.
+/// selection for anyone typing Chinese — which is exactly this app's user.
+/// Anything the trigger leaves in the line (including the ". " that
+/// `NSAutomaticPeriodSubstitutionEnabled` makes out of two spaces) sits at the
+/// end of the range we are about to replace, so it goes away with the rewrite.
+///
+/// Modifier keys arrive as `.flagsChanged` rather than `.keyDown`, and are
+/// counted only on press, not on release.
 final class HotkeyMonitor {
     /// Raised while we post our own synthetic keystrokes (the pasteboard
     /// fallback in TextAccess) so the tap does not react to its own output.
@@ -19,12 +21,8 @@ final class HotkeyMonitor {
     private let onTrigger: () -> Void
     private var tap: CFMachPort?
     private var source: CFRunLoopSource?
-    private var lastSpaceAt: CFAbsoluteTime = 0
-    private var spaceCount = 0
-
-    private let spaceKeyCode: Int64 = 49
-    private let tapWindow: CFAbsoluteTime = 0.3
-    private let tapsToTrigger = 3
+    private var lastTapAt: CFAbsoluteTime = 0
+    private var tapCount = 0
 
     init(onTrigger: @escaping () -> Void) {
         self.onTrigger = onTrigger
@@ -35,7 +33,10 @@ final class HotkeyMonitor {
     /// Returns false when the tap could not be created, which in practice means
     /// Input Monitoring has not been granted.
     func start() -> Bool {
+        guard tap == nil else { return true }
+
         let mask = (1 << CGEventType.keyDown.rawValue)
+            | (1 << CGEventType.flagsChanged.rawValue)
         let refcon = Unmanaged.passUnretained(self).toOpaque()
 
         guard let tap = CGEvent.tapCreate(
@@ -66,37 +67,57 @@ final class HotkeyMonitor {
     fileprivate func handle(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
         let passthrough = Unmanaged.passUnretained(event)
 
-        // The system disables a tap that takes too long in its callback. Do the
-        // real work asynchronously below, and re-arm here if it happens anyway.
+        // The system disables a tap that takes too long in its callback. The
+        // real work is dispatched asynchronously, but re-arm anyway.
         if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
             if let tap { CGEvent.tapEnable(tap: tap, enable: true) }
             return passthrough
         }
 
-        guard type == .keyDown, !Self.suppressed else { return passthrough }
+        guard !Self.suppressed else { return passthrough }
 
-        guard event.getIntegerValueField(.keyboardEventKeycode) == spaceKeyCode else {
-            spaceCount = 0
-            return passthrough
-        }
-
-        // A modified space (⌘Space, ⌥Space, ⌃Space) belongs to someone else.
-        let disqualifying: CGEventFlags = [.maskCommand, .maskControl, .maskAlternate]
-        guard event.flags.isDisjoint(with: disqualifying) else {
-            spaceCount = 0
+        let trigger = Prefs.trigger
+        guard isTap(of: trigger, type: type, event: event) else {
+            // Only reset on events that could have been the trigger. A modifier
+            // release, or an unrelated keystroke, should not clear a run in
+            // progress for a modifier trigger.
+            if type == .keyDown || event.getIntegerValueField(.keyboardEventKeycode) == trigger.keyCode {
+                tapCount = 0
+            }
             return passthrough
         }
 
         let now = CFAbsoluteTimeGetCurrent()
-        spaceCount = (now - lastSpaceAt < tapWindow) ? spaceCount + 1 : 1
-        lastSpaceAt = now
+        tapCount = (now - lastTapAt < Prefs.triggerWindow) ? tapCount + 1 : 1
+        lastTapAt = now
 
-        if spaceCount >= tapsToTrigger {
-            spaceCount = 0
-            lastSpaceAt = 0
+        if tapCount >= Prefs.triggerCount {
+            tapCount = 0
+            lastTapAt = 0
             DispatchQueue.main.async { [weak self] in self?.onTrigger() }
         }
         return passthrough
+    }
+
+    private func isTap(of trigger: TriggerBinding, type: CGEventType, event: CGEvent) -> Bool {
+        guard event.getIntegerValueField(.keyboardEventKeycode) == trigger.keyCode else { return false }
+
+        // Holding a key down produces repeats that look exactly like fresh
+        // presses. At the system defaults they arrive every ~90ms after a
+        // ~375ms delay, so holding the key would always reach the tap count and
+        // fire a rewrite the user never asked for.
+        guard event.getIntegerValueField(.keyboardEventAutorepeat) == 0 else { return false }
+
+        if let flag = trigger.modifierFlag {
+            // flagsChanged fires on both press and release; the flag is set only
+            // on press.
+            return type == .flagsChanged && event.flags.contains(flag)
+        }
+
+        guard type == .keyDown else { return false }
+        // A modified space (⌘Space, ⌥Space, ⌃Space) belongs to someone else.
+        let disqualifying: CGEventFlags = [.maskCommand, .maskControl, .maskAlternate]
+        return event.flags.isDisjoint(with: disqualifying)
     }
 }
 
