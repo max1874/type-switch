@@ -142,4 +142,4 @@ another app's text.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+[MIT](LICENSE) © 2026 Max

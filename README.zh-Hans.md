@@ -123,4 +123,4 @@ TypeSwitch 会等它们落地之后再读，写回之前还会重新读一次确
 
 ## 许可
 
-MIT，见 [LICENSE](LICENSE)。
+[MIT](LICENSE) © 2026 Max
