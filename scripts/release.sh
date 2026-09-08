@@ -3,23 +3,22 @@
 # without a Gatekeeper detour.
 #
 # Runs locally, not in CI, so the Developer ID certificate never leaves this
-# machine. Needs, once:
-#
-#     xcrun notarytool store-credentials TypeSwitch \
-#         --apple-id you@example.com --team-id TEAMID --password <app-specific-password>
-#
-# Override the defaults with RELEASE_IDENTITY and NOTARY_PROFILE.
+# machine. Notarization credentials come from Config/notary.env, which is
+# gitignored; see Config/notary.env.example.
 set -eu
 
 project_dir=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 build_dir="$project_dir/build"
 app="$build_dir/TypeSwitch.app"
-notary_profile=${NOTARY_PROFILE:-TypeSwitch}
 
 cd "$project_dir"
 
+if [ -f Config/notary.env ]; then
+    . ./Config/notary.env
+fi
+
 # --- Preflight -------------------------------------------------------------
-# Everything that can be checked before spending a build is checked here:
+# Everything that can be checked is checked before a build is spent:
 # notarization takes minutes, and failing at the last step wastes all of it.
 
 if [ "${RELEASE_IDENTITY+x}" = "x" ]; then
@@ -36,11 +35,16 @@ if [ -z "$identity" ]; then
     exit 1
 fi
 
-if ! xcrun notarytool history --keychain-profile "$notary_profile" >/dev/null 2>&1; then
-    echo "No notarytool credentials stored under the profile '$notary_profile'." >&2
-    echo "Create them once with:" >&2
-    echo "    xcrun notarytool store-credentials $notary_profile \\" >&2
-    echo "        --apple-id <your-apple-id> --team-id <your-team-id> --password <app-specific-password>" >&2
+for name in NOTARY_KEY NOTARY_KEY_ID NOTARY_ISSUER; do
+    eval "value=\${$name:-}"
+    if [ -z "$value" ]; then
+        echo "$name is not set." >&2
+        echo "Copy Config/notary.env.example to Config/notary.env and fill it in." >&2
+        exit 1
+    fi
+done
+if [ ! -f "$NOTARY_KEY" ]; then
+    echo "App Store Connect key not found at: $NOTARY_KEY" >&2
     exit 1
 fi
 
@@ -56,20 +60,60 @@ case "$version" in
     ''|*[!0-9A-Za-z.-]*) echo "Invalid MARKETING_VERSION: '$version'" >&2; exit 1 ;;
 esac
 
-dmg="$build_dir/TypeSwitch-$version.dmg"
+dmg_name="TypeSwitch-$version.dmg"
+dmg="$build_dir/$dmg_name"
+
+# Submits one file and insists on an accepted verdict.
+#
+# `notarytool submit --wait` does exit non-zero on a rejected submission, but
+# only when nothing swallows that code — a pipeline reports its last command's
+# status, which is how a rejection gets read as success. The output goes to a
+# file, and the verdict is confirmed in the text as well.
+notarize() {
+    submission=$1
+    submission_log="$build_dir/notarization-$(basename "$submission").log"
+
+    if xcrun notarytool submit "$submission" \
+        --key "$NOTARY_KEY" \
+        --key-id "$NOTARY_KEY_ID" \
+        --issuer "$NOTARY_ISSUER" \
+        --wait >"$submission_log" 2>&1
+    then
+        submitted=0
+    else
+        submitted=1
+    fi
+    cat "$submission_log"
+
+    if [ "$submitted" -ne 0 ] || ! grep -q 'status: Accepted' "$submission_log"; then
+        echo "Notarization did not come back Accepted for $submission." >&2
+        exit 1
+    fi
+}
 
 # --- Build and sign --------------------------------------------------------
 
 "$project_dir/scripts/build-app.sh" >/dev/null
 
-# Re-signed here rather than left to the build: notarization requires the
-# hardened runtime and a secure timestamp, and this is the one place both are
-# guaranteed to be applied.
 codesign --force --options runtime --timestamp --sign "$identity" "$app"
-codesign --verify --deep --strict --verbose=2 "$app"
+codesign --verify --deep --strict "$app"
 echo "Signed with: $identity"
 
-# --- Package ---------------------------------------------------------------
+# --- Notarize the app ------------------------------------------------------
+# The app is notarized and stapled before it goes into the image. Stapling only
+# the image leaves the copy someone drags out of it with no ticket of its own,
+# so that copy's first launch has to reach Apple over the network to confirm
+# it was notarized. A stapled app carries the answer with it.
+
+app_zip="$build_dir/TypeSwitch.zip"
+rm -f "$app_zip"
+ditto -c -k --keepParent "$app" "$app_zip"
+notarize "$app_zip"
+xcrun stapler staple "$app"
+xcrun stapler validate "$app"
+rm -f "$app_zip"
+
+# --- Package and notarize the image ----------------------------------------
 
 rm -f "$dmg"
 create-dmg \
@@ -83,25 +127,23 @@ create-dmg \
     "$app" >/dev/null
 
 # create-dmg produces an unsigned image. Notarization and stapling work on one
-# regardless, but an unsigned image has nothing for Gatekeeper to assess on its
-# own, so signing it is what makes the download itself verifiable.
+# regardless, but an unsigned image has nothing of its own for Gatekeeper to
+# assess, so signing it is what makes the download itself verifiable.
 codesign --force --timestamp --sign "$identity" "$dmg"
-
-# --- Notarize --------------------------------------------------------------
-# The DMG is what people download, so the DMG is what gets stapled. Notarizing
-# it covers the app inside it.
-
-xcrun notarytool submit "$dmg" --keychain-profile "$notary_profile" --wait
+notarize "$dmg"
 xcrun stapler staple "$dmg"
 
 # --- Verify ----------------------------------------------------------------
-# What a first-time download actually goes through, checked here rather than
-# discovered by whoever downloads it.
+# What a first-time download goes through, checked here rather than discovered
+# by whoever downloads it.
 
 xcrun stapler validate "$dmg"
 spctl --assess --type open --context context:primary-signature -v "$dmg"
 
-shasum -a 256 "$dmg" > "$dmg.sha256"
+# Written from inside the directory, so the file names the image rather than
+# this machine's directory layout: `shasum -c` looks for the path it is given,
+# and an absolute one exists on no other machine.
+(cd "$build_dir" && shasum -a 256 "$dmg_name" >"$dmg_name.sha256")
 
 echo
 echo "$dmg"

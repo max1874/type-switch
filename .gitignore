@@ -10,3 +10,6 @@ DerivedData/
 
 # Your signing identity — copy Config/Local.xcconfig.example to create this
 Config/Local.xcconfig
+
+# Your notarization credentials — copy Config/notary.env.example to create this
+Config/notary.env
