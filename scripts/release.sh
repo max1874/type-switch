@@ -135,10 +135,10 @@ xcrun stapler staple "$dmg"
 
 # --- Verify ----------------------------------------------------------------
 # What a first-time download goes through, checked here rather than discovered
-# by whoever downloads it.
+# by whoever downloads it. The image and the app inside it are both checked,
+# which is what stops the stapling above from quietly going away again.
 
-xcrun stapler validate "$dmg"
-spctl --assess --type open --context context:primary-signature -v "$dmg"
+"$project_dir/scripts/audit-release.sh" "$dmg" "$version"
 
 # Written from inside the directory, so the file names the image rather than
 # this machine's directory layout: `shasum -c` looks for the path it is given,
