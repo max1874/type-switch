@@ -36,11 +36,11 @@ There is no signed release build. You build it yourself.
 ```sh
 git clone https://github.com/max1874/type-switch.git
 cd type-switch
-xcodebuild -project TypeSwitch.xcodeproj -scheme TypeSwitch -configuration Release build
+make app
+open build/TypeSwitch.app
 ```
 
-The built app is under `~/Library/Developer/Xcode/DerivedData/TypeSwitch-*/Build/Products/Release/`.
-Move it to `/Applications` and open it.
+Move `build/TypeSwitch.app` to `/Applications` to keep it.
 
 By default the project signs ad-hoc, so it builds with no Apple developer
 account. The catch is that macOS ties Accessibility and Input Monitoring grants
@@ -65,6 +65,23 @@ you are typing in. Grant both and it starts working; no relaunch needed.
 Open Settings → AI service, pick a provider or type any OpenAI-compatible
 address, and paste your key. It is stored in your login keychain and sent only
 to that address. Nothing is bundled with the app.
+
+## Development
+
+```sh
+make app       # Build TypeSwitch.app into build/
+make release   # Signed, notarized, stapled DMG — maintainers only
+make clean     # Remove build/
+```
+
+`make release` runs on a maintainer's own machine rather than in CI, so the
+Developer ID certificate never leaves it. It needs notarization credentials
+stored once:
+
+```sh
+xcrun notarytool store-credentials TypeSwitch \
+    --apple-id <your-apple-id> --team-id <your-team-id> --password <app-specific-password>
+```
 
 ## Using it
 

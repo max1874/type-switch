@@ -5,7 +5,7 @@ import Security
 /// not prompt for keychain access the way it does for an item created by an
 /// outside tool.
 enum Keychain {
-    private static let service = "com.youxianglin.TypeSwitch"
+    private static let service = "dev.typeswitch.app"
     private static let account = "provider-api-key"
 
     static var apiKey: String? {

@@ -1,7 +1,7 @@
 import SwiftUI
 import os
 
-let log = Logger(subsystem: "com.youxianglin.TypeSwitch", category: "core")
+let log = Logger(subsystem: "dev.typeswitch.app", category: "core")
 
 @main
 struct TypeSwitchApp: App {

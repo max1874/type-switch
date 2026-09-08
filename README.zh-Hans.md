@@ -33,11 +33,11 @@ Je voudrais 预约 une réunion       →  Je voudrais réserver une réunion
 ```sh
 git clone https://github.com/max1874/type-switch.git
 cd type-switch
-xcodebuild -project TypeSwitch.xcodeproj -scheme TypeSwitch -configuration Release build
+make app
+open build/TypeSwitch.app
 ```
 
-构建产物在 `~/Library/Developer/Xcode/DerivedData/TypeSwitch-*/Build/Products/Release/`
-下，把它移到 `/Applications` 再打开。
+想长期留着就把 `build/TypeSwitch.app` 移到 `/Applications`。
 
 工程默认用 ad-hoc 签名，没有 Apple 开发者账号也能构建。代价是 macOS 把「辅助功能」
 和「输入监控」的授权绑定在签名上，而 ad-hoc 签名每次构建都会变——所以每次重新构建
@@ -60,6 +60,22 @@ xcodebuild -project TypeSwitch.xcodeproj -scheme TypeSwitch -configuration Relea
 打开「设置 → AI 服务」，选一个服务商，或者直接填任何兼容 OpenAI 格式的地址，然后
 粘贴你的 Key。Key 存在你的登录钥匙串里，只发给你填的那个地址。App 里没有内置任何
 Key。
+
+## 开发
+
+```sh
+make app       # 构建 TypeSwitch.app 到 build/
+make release   # 签名、公证、装订好的 DMG——维护者用
+make clean     # 清掉 build/
+```
+
+`make release` 只在维护者自己的机器上跑，不进 CI，所以 Developer ID 证书不会离开
+本机。公证凭证需要预先存一次：
+
+```sh
+xcrun notarytool store-credentials TypeSwitch \
+    --apple-id <你的 Apple ID> --team-id <你的 Team ID> --password <应用专用密码>
+```
 
 ## 怎么用
 
