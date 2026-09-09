@@ -170,7 +170,13 @@ private struct ProviderPane: View {
     @AppStorage(PrefKey.systemPrompt) private var prompt = Rewriter.defaultSystemPrompt
     @AppStorage(PrefKey.targetLanguage) private var targetLanguage = "English"
 
-    @State private var apiKey = Keychain.apiKey ?? ""
+    // The field never shows the stored key. A SecureField renders dots either
+    // way, so reading the secret back to fill it in buys nothing — and reading
+    // it is exactly what raises the keychain's access prompt. Whether one is
+    // stored can be answered without touching the secret; the secret itself is
+    // read in one place now, when a request is actually made.
+    @State private var apiKey = ""
+    @State private var hasStoredKey = Keychain.hasAPIKey
     @State private var outcome: TestOutcome?
     @State private var testing = false
 
@@ -222,11 +228,17 @@ private struct ProviderPane: View {
                 }
                 TextField("地址", text: $baseURL)
                 TextField("模型", text: $model)
-                SecureField("API Key", text: $apiKey)
-                    .onChange(of: apiKey) { _, new in
-                        Keychain.apiKey = new.trimmingCharacters(in: .whitespacesAndNewlines)
-                        outcome = nil
-                    }
+                SecureField(
+                    "API Key",
+                    text: $apiKey,
+                    prompt: Text(hasStoredKey ? "已保存，输入可替换" : "sk-…")
+                )
+                .onChange(of: apiKey) { _, new in
+                    let trimmed = new.trimmingCharacters(in: .whitespacesAndNewlines)
+                    Keychain.apiKey = trimmed
+                    hasStoredKey = !trimmed.isEmpty
+                    outcome = nil
+                }
             } header: {
                 Text("接口")
             } footer: {

@@ -54,6 +54,7 @@
         }
       }
     },
+    "sk-…": {},
     "writing English 卡住了？": {
       "localizations": {
         "en": {
@@ -280,16 +281,16 @@
     },
     "就绪 · 连按 %lld 次「%@」触发": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "就绪 · 连按 %lld 次「%@」触发"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Ready · %lld taps of “%@”"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "就绪 · 连按 %lld 次「%@」触发"
           }
         }
       }
@@ -354,6 +355,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "左 ⌥"
+          }
+        }
+      }
+    },
+    "已保存，输入可替换": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved — type to replace"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已保存，输入可替换"
           }
         }
       }
@@ -504,16 +521,16 @@
     },
     "接口返回 %lld：%@": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "接口返回 %lld：%@"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "The endpoint returned %lld: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接口返回 %lld：%@"
           }
         }
       }
