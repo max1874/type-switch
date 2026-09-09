@@ -47,6 +47,21 @@ enum WindowCapture {
             pane = named
         }
 
+        if let flag = arguments.firstIndex(of: "--notice"),
+           arguments.indices.contains(flag + 1) {
+            Notice.show(arguments[flag + 1])
+            guard let panel = NSApp.windows.first(where: { $0 is NSPanel }) else {
+                fail("the notice panel did not appear")
+            }
+            // No activation: the panel is borderless and draws the same either
+            // way, and not taking focus is the thing being checked.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                write(window: panel, to: path)
+                exit(0)
+            }
+            return true
+        }
+
         var height = 540.0
         if let given = arguments.firstIndex(of: "--height"),
            arguments.indices.contains(given + 1) {
@@ -92,6 +107,9 @@ enum WindowCapture {
         // NavigationSplitView and Form altogether. Naming the window id is what
         // keeps this from being a screenshot — nothing else on the display can
         // be in the result, whatever is in front of it.
+        // Deprecated in favour of ScreenCaptureKit, which is the wrong tool
+        // here: it captures displays, and needs the screen recording grant
+        // that naming a single window id is what avoids.
         guard let image = CGWindowListCreateImage(
             .null,
             .optionIncludingWindow,

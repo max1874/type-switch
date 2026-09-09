@@ -1,4 +1,3 @@
-import Combine
 import SwiftUI
 import os
 
@@ -10,27 +9,17 @@ struct TypeSwitchApp: App {
     @AppStorage(PrefKey.showMenuBarIcon) private var showMenuBarIcon = true
 
     var body: some Scene {
-        MenuBarExtra(isInserted: iconVisible) {
+        MenuBarExtra(isInserted: $showMenuBarIcon) {
             MenuBarView(state: delegate.state)
         } label: {
             // One icon, always the same one. A glyph that changes with status
             // turns the menu bar into a display the user has to keep reading;
             // what went wrong belongs in the menu, where it can say so in
             // words.
-            Image(systemName: "character.cursor.ibeam")
+            Image("MenuBarIcon")
+                .renderingMode(.template)
         }
         .menuBarExtraStyle(.menu)
-    }
-
-    /// Hiding the icon hides the only place status is ever shown, so a failed
-    /// rewrite looked exactly like nothing happening. A problem puts the icon
-    /// back until it is resolved; the user's own setting is what gets written
-    /// when they toggle it, so it returns to hidden on its own.
-    private var iconVisible: Binding<Bool> {
-        Binding(
-            get: { showMenuBarIcon || delegate.hasProblem },
-            set: { showMenuBarIcon = $0 }
-        )
     }
 }
 
@@ -93,13 +82,8 @@ private final class WindowCloser: NSObject, NSWindowDelegate {
 final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
     let state = AppState()
 
-    /// Mirrored out of `state` because the scene observes the delegate, not the
-    /// state object nested inside it.
-    @Published private(set) var hasProblem = false
-
     private var monitor: HotkeyMonitor?
     private var permissionPoll: Timer?
-    private var statusObserver: AnyCancellable?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Prefs.registerDefaults()
@@ -110,9 +94,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         if WindowCapture.runIfRequested() { return }
         #endif
 
-        statusObserver = state.$status.sink { [weak self] status in
-            self?.hasProblem = status.isProblem
-        }
         Permissions.requestAccessibility()
         Permissions.requestInputMonitoring()
 
@@ -182,7 +163,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             capture = try TextAccess.capture()
         } catch {
             log.error("capture failed: \(error.localizedDescription, privacy: .public)")
-            state.status = .error(error.localizedDescription)
+            fail(error)
             return
         }
         log.info("captured via \(capture.path.rawValue, privacy: .public): \(capture.text, privacy: .public)")
@@ -199,8 +180,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             // Capture does not modify the document, so there is nothing to roll
             // back — the user's text is untouched wherever this failed.
             log.error("rewrite failed: \(error.localizedDescription, privacy: .public)")
-            state.status = .error(error.localizedDescription)
+            fail(error)
         }
+    }
+
+    /// A failure has to reach the user without being read for: the trigger was
+    /// a keystroke, so the only thing to see otherwise is that nothing changed.
+    /// The menu carries the same message for anyone who goes looking.
+    private func fail(_ error: Error) {
+        state.status = .error(error.localizedDescription)
+        Notice.show(error.localizedDescription)
     }
 }
 
@@ -213,16 +202,6 @@ final class AppState: ObservableObject {
         case working
         case needsPermission
         case error(String)
-
-        /// Whether the user needs to see this. Working and idle are not worth
-        /// interrupting a hidden icon for; the other two are the whole reason
-        /// the icon exists.
-        var isProblem: Bool {
-            switch self {
-            case .idle, .working: false
-            case .needsPermission, .error: true
-            }
-        }
 
         var label: String {
             switch self {
