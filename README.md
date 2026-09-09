@@ -50,7 +50,7 @@ fingers first, and repair it without breaking stride.
 
 ## Requirements
 
-- macOS 14 or later, Apple silicon
+- macOS 14 or later, Apple silicon or Intel
 - An API key for any service that speaks the OpenAI chat-completions format
 - Xcode 16 or later, only if you build it yourself
 
@@ -171,14 +171,13 @@ xcrun notarytool store-credentials TypeSwitch \
 
 ## Known limitations
 
-- **It triggers everywhere**, including terminals and code editors, where the
-  line it picks up may be a shell prompt rather than prose. There is no per-app
-  allowlist yet.
+- **It triggers on a keystroke, not on what is under it.** In a terminal or an
+  editor the line it picks up may be a shell prompt or a line of code. Settings
+  → Trigger takes a list of apps to ignore; it starts empty.
 - **Only the DeepSeek path is tested.** The OpenAI, Moonshot, and Ollama presets
   are the documented shapes of those APIs, not verified requests.
 - **Undo depends on the app.** Where the pasteboard fallback is used, ⌘Z behaves
   the way a paste does in that app.
-- **Apple silicon only** in the released build.
 
 ## Privacy
 

@@ -71,6 +71,38 @@
         }
       }
     },
+    "不再排除这个 app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop excluding this app"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不再排除这个 app"
+          }
+        }
+      }
+    },
+    "不在这些 app 里触发": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Never trigger in these apps"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不在这些 app 里触发"
+          }
+        }
+      }
+    },
     "任何兼容 OpenAI 格式的服务都可以填。Key 存在你的钥匙串里，只发给上面这个地址。": {
       "localizations": {
         "en": {
@@ -103,18 +135,18 @@
         }
       }
     },
-    "关掉后，再次打开 TypeSwitch 会回到这个窗口。": {
+    "关掉后，再次打开 TypeSwitch 会回到这个窗口。出错时图标会自己回来，否则你不会知道它失败了。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "With the icon off, opening TypeSwitch again brings you back to this window."
+            "value": "With it off, opening TypeSwitch again brings you back to this window. The icon comes back on its own when something goes wrong — otherwise a failure would look like nothing happening."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "关掉后，再次打开 TypeSwitch 会回到这个窗口。"
+            "value": "关掉后，再次打开 TypeSwitch 会回到这个窗口。出错时图标会自己回来，否则你不会知道它失败了。"
           }
         }
       }
@@ -631,6 +663,22 @@
         }
       }
     },
+    "添加 app…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add an app…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加 app…"
+          }
+        }
+      }
+    },
     "点一下，然后按你想用的键；Esc 取消": {
       "localizations": {
         "en": {
@@ -771,6 +819,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "触发键"
+          }
+        }
+      }
+    },
+    "触发键认的是按键，不是按键底下是什么。终端和代码编辑器里读到的一行，很可能是提示符或一行代码而不是正文。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The trigger recognises a keystroke, not what sits under it. In a terminal or an editor, the line it picks up is as likely to be a prompt or a line of code as it is prose."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "触发键认的是按键，不是按键底下是什么。终端和代码编辑器里读到的一行，很可能是提示符或一行代码而不是正文。"
           }
         }
       }
@@ -947,6 +1011,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "退出 TypeSwitch"
+          }
+        }
+      }
+    },
+    "选一个不希望触发的 app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose an app the trigger should ignore"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选一个不希望触发的 app"
+          }
+        }
+      }
+    },
+    "选择": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择"
           }
         }
       }

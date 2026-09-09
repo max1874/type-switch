@@ -57,6 +57,7 @@ private struct TriggerPane: View {
     @AppStorage(PrefKey.showMenuBarIcon) private var showMenuBarIcon = true
 
     @State private var doubleSpacePeriod = SystemTextPrefs.doubleSpacePeriod
+    @State private var excluded = ExcludedApps.bundleIDs
     @State private var recording = false
     @State private var recorder: Any?
 
@@ -96,9 +97,22 @@ private struct TriggerPane: View {
             }
 
             Section {
+                ForEach(excluded, id: \.self) { bundleID in
+                    ExcludedAppRow(bundleID: bundleID) { remove(bundleID) }
+                }
+                Button("添加 app…", action: addApp)
+            } header: {
+                Text("不在这些 app 里触发")
+            } footer: {
+                Text("触发键认的是按键，不是按键底下是什么。终端和代码编辑器里读到的一行，很可能是提示符或一行代码而不是正文。")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
                 Toggle("在菜单栏显示图标", isOn: $showMenuBarIcon)
             } footer: {
-                Text("关掉后，再次打开 TypeSwitch 会回到这个窗口。")
+                Text("关掉后，再次打开 TypeSwitch 会回到这个窗口。出错时图标会自己回来，否则你不会知道它失败了。")
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
@@ -112,6 +126,17 @@ private struct TriggerPane: View {
             doubleSpacePeriod = SystemTextPrefs.doubleSpacePeriod
         }
         .onDisappear(perform: stopRecording)
+    }
+
+    private func addApp() {
+        guard let bundleID = ExcludedApps.pick() else { return }
+        ExcludedApps.add(bundleID)
+        excluded = ExcludedApps.bundleIDs
+    }
+
+    private func remove(_ bundleID: String) {
+        ExcludedApps.remove(bundleID)
+        excluded = ExcludedApps.bundleIDs
     }
 
     /// Writes through to the system only when the user flips it, so refreshing
@@ -351,6 +376,30 @@ private struct KeyRecorder: View {
         }
         .buttonStyle(.plain)
         .help("点一下，然后按你想用的键；Esc 取消")
+    }
+}
+
+private struct ExcludedAppRow: View {
+    let bundleID: String
+    let remove: () -> Void
+
+    var body: some View {
+        let app = ExcludedApps.describe(bundleID)
+        HStack(spacing: 8) {
+            if let icon = app.icon {
+                Image(nsImage: icon)
+                    .resizable()
+                    .frame(width: 16, height: 16)
+            }
+            Text(app.name)
+            Spacer()
+            Button(action: remove) {
+                Image(systemName: "minus.circle.fill")
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .help("不再排除这个 app")
+        }
     }
 }
 

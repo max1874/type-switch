@@ -1,3 +1,4 @@
+import Combine
 import SwiftUI
 import os
 
@@ -9,12 +10,33 @@ struct TypeSwitchApp: App {
     @AppStorage(PrefKey.showMenuBarIcon) private var showMenuBarIcon = true
 
     var body: some Scene {
-        MenuBarExtra(isInserted: $showMenuBarIcon) {
+        MenuBarExtra(isInserted: iconVisible) {
             MenuBarView(state: delegate.state)
         } label: {
-            Image(systemName: delegate.state.status.symbolName)
+            MenuBarLabel(state: delegate.state)
         }
         .menuBarExtraStyle(.menu)
+    }
+
+    /// Hiding the icon hides the only place status is ever shown, so a failed
+    /// rewrite looked exactly like nothing happening. A problem puts the icon
+    /// back until it is resolved; the user's own setting is what gets written
+    /// when they toggle it, so it returns to hidden on its own.
+    private var iconVisible: Binding<Bool> {
+        Binding(
+            get: { showMenuBarIcon || delegate.hasProblem },
+            set: { showMenuBarIcon = $0 }
+        )
+    }
+}
+
+/// The icon tracks status, which needs something observing the state object;
+/// the scene itself is not rebuilt for every change.
+private struct MenuBarLabel: View {
+    @ObservedObject var state: AppState
+
+    var body: some View {
+        Image(systemName: state.status.symbolName)
     }
 }
 
@@ -74,13 +96,22 @@ private final class WindowCloser: NSObject, NSWindowDelegate {
 }
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
     let state = AppState()
+
+    /// Mirrored out of `state` because the scene observes the delegate, not the
+    /// state object nested inside it.
+    @Published private(set) var hasProblem = false
+
     private var monitor: HotkeyMonitor?
     private var permissionPoll: Timer?
+    private var statusObserver: AnyCancellable?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Prefs.registerDefaults()
+        statusObserver = state.$status.sink { [weak self] status in
+            self?.hasProblem = status.isProblem
+        }
         Permissions.requestAccessibility()
         Permissions.requestInputMonitoring()
 
@@ -128,6 +159,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func handleTrigger() {
+        if let bundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier,
+           ExcludedApps.contains(bundleID) {
+            log.info("ignored in \(bundleID, privacy: .public)")
+            return
+        }
+
         state.status = .working
         Task {
             // The tap is listen-only, so the trigger keystrokes are still on
@@ -175,6 +212,16 @@ final class AppState: ObservableObject {
         case working
         case needsPermission
         case error(String)
+
+        /// Whether the user needs to see this. Working and idle are not worth
+        /// interrupting a hidden icon for; the other two are the whole reason
+        /// the icon exists.
+        var isProblem: Bool {
+            switch self {
+            case .idle, .working: false
+            case .needsPermission, .error: true
+            }
+        }
 
         var symbolName: String {
             switch self {

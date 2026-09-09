@@ -46,7 +46,7 @@ Je voudrais 预约 une réunion       →  Je voudrais réserver une réunion
 
 ## 环境要求
 
-- macOS 14 或更新版本，Apple 芯片
+- macOS 14 或更新版本，Apple 芯片或 Intel
 - 任意兼容 OpenAI chat-completions 格式的服务的 API Key
 - Xcode 16 或更新版本——只有自己构建时才需要
 
@@ -152,13 +152,12 @@ xcrun notarytool store-credentials TypeSwitch \
 
 ## 已知限制
 
-- **在哪都会触发**，包括终端和代码编辑器——在那里读到的「一行」可能是 shell 提示
-  符而不是正文。目前还没有按 app 区分的白名单。
+- **触发认的是按键，不是按键底下是什么**。终端和代码编辑器里读到的一行，可能是提
+  示符或一行代码。「设置 → 触发」里可以列出不触发的 app，默认是空的。
 - **只验证过 DeepSeek 这条链路**。OpenAI、Moonshot、Ollama 三个预设是按各自 API
   的公开格式写的，没有实际跑通过。
 - **撤销行为取决于 app**。走剪贴板兜底路径时，⌘Z 的表现和在那个 app 里撤销一次粘
   贴一样。
-- 发布版**只支持 Apple 芯片**。
 
 ## 隐私
 

@@ -12,10 +12,14 @@ output="$project_dir/build/TypeSwitch.app"
 
 cd "$project_dir"
 
+# `generic/platform=macOS` rather than letting xcodebuild pick a destination:
+# left alone it takes the first match, which names this machine's own
+# architecture and quietly builds for that one alone.
 xcodebuild \
     -project TypeSwitch.xcodeproj \
     -scheme TypeSwitch \
     -configuration "$configuration" \
+    -destination 'generic/platform=macOS' \
     -derivedDataPath "$derived_data" \
     build
 

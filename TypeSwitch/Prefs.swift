@@ -100,6 +100,7 @@ enum PrefKey {
     static let triggerCount = "triggerCount"
     static let triggerWindow = "triggerWindow"
     static let showMenuBarIcon = "showMenuBarIcon"
+    static let excludedApps = "excludedApps"
     static let providerBaseURL = "providerBaseURL"
     static let providerModel = "providerModel"
     static let systemPrompt = "systemPrompt"
