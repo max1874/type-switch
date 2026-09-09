@@ -115,16 +115,45 @@ rm -f "$app_zip"
 
 # --- Package and notarize the image ----------------------------------------
 
-rm -f "$dmg"
-create-dmg \
-    --volname "TypeSwitch $version" \
-    --window-size 520 340 \
-    --icon-size 96 \
-    --icon "TypeSwitch.app" 130 160 \
-    --app-drop-link 390 160 \
-    --no-internet-enable \
-    "$dmg" \
-    "$app" >/dev/null
+# create-dmg lays the window out by driving Finder over AppleScript, and
+# Finder is not reliably ready when it asks — the failure is a -10006 on
+# setting a window property, and it is intermittent. Give Finder room, clear
+# the half-built read-write image each time, and retry.
+dmg_work="$build_dir/dmg"
+rm -rf "$dmg_work"
+mkdir -p "$dmg_work/source"
+ditto "$app" "$dmg_work/source/TypeSwitch.app"
+
+create_image() {
+    rm -f "$dmg"
+    find "$build_dir" -maxdepth 1 -type f -name "rw.*.$dmg_name" -delete
+    create-dmg \
+        --volname "TypeSwitch $version" \
+        --volicon "$app/Contents/Resources/AppIcon.icns" \
+        --window-size 520 340 \
+        --icon-size 96 \
+        --icon "TypeSwitch.app" 130 160 \
+        --hide-extension "TypeSwitch.app" \
+        --app-drop-link 390 160 \
+        --no-internet-enable \
+        --applescript-sleep-duration 8 \
+        --overwrite \
+        "$dmg" \
+        "$dmg_work/source" >/dev/null
+}
+
+attempt=1
+while ! create_image
+do
+    if [ "$attempt" -ge 3 ]; then
+        echo "create-dmg failed after $attempt attempts." >&2
+        exit 1
+    fi
+    attempt=$((attempt + 1))
+    echo "Retrying create-dmg after a Finder layout failure (attempt $attempt of 3)..." >&2
+    sleep 2
+done
+rm -rf "$dmg_work"
 
 # create-dmg produces an unsigned image. Notarization and stapling work on one
 # regardless, but an unsigned image has nothing of its own for Gatekeeper to
