@@ -107,9 +107,11 @@ macOS turns two quick spaces into a period, which lands in the middle of a
 Space-triggered rewrite. The Settings window has a switch for that system
 setting, so you can turn it off without leaving the app.
 
-**AI service** — the endpoint, the model, and your key. Presets for DeepSeek,
-OpenAI, Moonshot, and a local Ollama fill the first two in; anything else that
-speaks `POST /chat/completions` works if you type the address yourself.
+**AI service** — the format, the address, the model, and your key. TypeSwitch
+speaks one API format, OpenAI-compatible `POST /chat/completions`, so any
+address that speaks it works; the Common addresses menu fills in DeepSeek,
+OpenAI, Moonshot, or a local Ollama for you. A model running on your own
+machine usually wants no key at all, so the key can be left blank.
 
 **Output language** — what your text is rewritten *into*. Default English. Any
 language the model knows works.
@@ -187,8 +189,10 @@ xcrun notarytool store-credentials TypeSwitch \
 - **It triggers on a keystroke, not on what is under it.** In a terminal or an
   editor the line it picks up may be a shell prompt or a line of code. Settings
   → Trigger takes a list of apps to ignore; it starts empty.
-- **Only the DeepSeek path is tested.** The OpenAI, Moonshot, and Ollama presets
-  are the documented shapes of those APIs, not verified requests.
+- **One format, tested against one address.** Every request goes through the
+  same OpenAI-compatible call, and that call is exercised against DeepSeek.
+  Other addresses speaking the same format send the byte-identical request, but
+  have not been run.
 - **Undo depends on the app.** Where the pasteboard fallback is used, ⌘Z behaves
   the way a paste does in that app.
 

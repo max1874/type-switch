@@ -26,15 +26,24 @@ enum RewriteError: LocalizedError {
 /// and the text is written back in one call anyway, so streaming would only add
 /// parsing complexity without changing what the user sees.
 enum Rewriter {
-    /// OpenAI-compatible chat completions, which is what DeepSeek, OpenAI,
-    /// Moonshot, and local Ollama/LM Studio all speak.
-    private static func endpoint(for provider: AIProvider) throws -> URL {
-        let base = provider.baseURL.trimmingCharacters(in: .whitespaces)
+    private static func chatCompletionsURL(_ baseURL: String) throws -> URL {
+        let base = baseURL.trimmingCharacters(in: .whitespaces)
             .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
         guard let url = URL(string: base + "/chat/completions") else {
-            throw RewriteError.badProviderURL(provider.baseURL)
+            throw RewriteError.badProviderURL(baseURL)
         }
         return url
+    }
+
+    /// Parameters only one vendor understands, keyed by the address they belong
+    /// to rather than by which shortcut was last clicked — the address can be
+    /// typed by hand, and then no shortcut was clicked at all.
+    private static func vendorExtras(for baseURL: String) -> [String: Any] {
+        guard baseURL.localizedCaseInsensitiveContains("deepseek") else { return [:] }
+        // DeepSeek reasons by default, which measured ~0.35s slower with no
+        // quality gain on a one-sentence rewrite. Sending it anywhere else
+        // would be rejected as an unknown argument.
+        return ["thinking": ["type": "disabled"]]
     }
 
     /// `{{language}}` is replaced with the configured target language, so the
@@ -66,18 +75,29 @@ enum Rewriter {
         let text = stripTriggerArtifacts(input)
         guard hasWords(text) else { throw RewriteError.nothingToRewrite }
 
-        let key = Prefs.apiKey
-        guard !key.isEmpty else { throw RewriteError.missingAPIKey }
+        switch Prefs.apiFormat {
+        case .openAICompatible:
+            return try await chatCompletion(text)
+        }
+    }
 
-        let provider = Prefs.provider
-        var request = URLRequest(url: try endpoint(for: provider))
+    private static func chatCompletion(_ text: String) async throws -> String {
+        let key = Prefs.apiKey
+        let baseURL = Prefs.baseURL
+
+        var request = URLRequest(url: try chatCompletionsURL(baseURL))
         request.httpMethod = "POST"
         request.timeoutInterval = 15
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
+        // Only when there is one. A key is not required by every endpoint —
+        // a model running on this machine answers without one — and demanding
+        // it up front made a working local setup impossible to configure.
+        if !key.isEmpty {
+            request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
+        }
 
         var body: [String: Any] = [
-            "model": provider.model,
+            "model": Prefs.model,
             "max_tokens": 2048,
             "temperature": 0.3,
             "messages": [
@@ -87,12 +107,7 @@ enum Rewriter {
                 ["role": "user", "content": text],
             ],
         ]
-        // DeepSeek reasons by default, which measured ~0.35s slower with no
-        // quality gain on a one-sentence rewrite. The parameter is theirs alone —
-        // OpenAI rejects unknown arguments outright.
-        if provider.baseURL.localizedCaseInsensitiveContains("deepseek") {
-            body["thinking"] = ["type": "disabled"]
-        }
+        body.merge(vendorExtras(for: baseURL)) { _, extra in extra }
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let data: Data
@@ -104,6 +119,12 @@ enum Rewriter {
         }
 
         if let http = response as? HTTPURLResponse, http.statusCode != 200 {
+            // An endpoint that wanted a key says so itself, and it is the only
+            // one that knows. Turning its refusal into plain words beats both
+            // demanding a key from everyone and handing over a bare 401.
+            if [401, 403].contains(http.statusCode), key.isEmpty {
+                throw RewriteError.missingAPIKey
+            }
             throw RewriteError.http(http.statusCode, Self.errorMessage(in: data))
         }
 

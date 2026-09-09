@@ -38,6 +38,22 @@
         }
       }
     },
+    "OpenAI 兼容": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenAI-compatible"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenAI 兼容"
+          }
+        }
+      }
+    },
     "TypeSwitch 设置": {
       "localizations": {
         "en": {
@@ -103,18 +119,18 @@
         }
       }
     },
-    "任何兼容 OpenAI 格式的服务都可以填。Key 存在你的钥匙串里，只发给上面这个地址。": {
+    "任何说这个格式的地址都可以填。Key 存在你的钥匙串里，只发给上面这个地址；跑在本机的模型通常不需要 Key，留空即可。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anything that speaks the OpenAI format works here. Your key is stored in your keychain and sent only to the address above."
+            "value": "Any address that speaks this format works here. Your key is stored in your keychain and sent only to the address above; a model running on this machine usually needs no key, so leave it blank."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "任何兼容 OpenAI 格式的服务都可以填。Key 存在你的钥匙串里，只发给上面这个地址。"
+            "value": "任何说这个格式的地址都可以填。Key 存在你的钥匙串里，只发给上面这个地址；跑在本机的模型通常不需要 Key，留空即可。"
           }
         }
       }
@@ -407,6 +423,22 @@
         }
       }
     },
+    "常用地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Common addresses"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "常用地址"
+          }
+        }
+      }
+    },
     "开启辅助功能权限…": {
       "localizations": {
         "en": {
@@ -551,6 +583,22 @@
         }
       }
     },
+    "接口格式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API format"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接口格式"
+          }
+        }
+      }
+    },
     "接口没有返回内容": {
       "localizations": {
         "en": {
@@ -611,22 +659,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "文字已经被改动，没有写回"
-          }
-        }
-      }
-    },
-    "服务商": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Service"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "服务商"
           }
         }
       }
@@ -787,22 +819,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "网络错误：%@"
-          }
-        }
-      }
-    },
-    "自定义": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Custom"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "自定义"
           }
         }
       }

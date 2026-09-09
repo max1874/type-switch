@@ -77,20 +77,50 @@ struct TriggerBinding: Equatable {
 
 }
 
-struct AIProvider: Equatable {
+/// What an endpoint speaks: the shape of the request and of the reply.
+///
+/// This is the thing that actually differs between one address and another.
+/// The vendor does not. DeepSeek, OpenAI, Moonshot and a local Ollama are four
+/// addresses speaking one format, and they went down one code path all along —
+/// offering them as a choice of "provider" described a difference that was
+/// never there. A second case here means a genuinely different protocol.
+enum APIFormat: String, CaseIterable, Identifiable {
+    /// `POST <address>/chat/completions`, a bearer token, `choices` back.
+    case openAICompatible = "openai-compatible"
+
+    var id: String { rawValue }
+
+    var name: String {
+        switch self {
+        case .openAICompatible: String(localized: "OpenAI 兼容")
+        }
+    }
+}
+
+/// An address worth having on hand, so that two fields do not have to be typed
+/// from memory.
+///
+/// Not a setting: choosing one fills the fields in and is then forgotten, and
+/// nothing downstream asks which one was chosen. What is stored is the address
+/// and the model, because that is all the request needs.
+struct KnownEndpoint {
     var name: String
+    var format: APIFormat
     var baseURL: String
     var model: String
 
-    /// OpenAI-compatible endpoints, which is nearly everything except Anthropic.
-    static let presets: [AIProvider] = [
-        AIProvider(name: "DeepSeek", baseURL: "https://api.deepseek.com", model: "deepseek-v4-flash"),
-        AIProvider(name: "OpenAI", baseURL: "https://api.openai.com/v1", model: "gpt-5-mini"),
-        AIProvider(name: "Moonshot", baseURL: "https://api.moonshot.cn/v1", model: "moonshot-v1-8k"),
-        AIProvider(name: String(localized: "本地 Ollama"), baseURL: "http://localhost:11434/v1", model: "qwen2.5:7b"),
+    static let all: [KnownEndpoint] = [
+        KnownEndpoint(name: "DeepSeek", format: .openAICompatible,
+                      baseURL: "https://api.deepseek.com", model: "deepseek-v4-flash"),
+        KnownEndpoint(name: "OpenAI", format: .openAICompatible,
+                      baseURL: "https://api.openai.com/v1", model: "gpt-5-mini"),
+        KnownEndpoint(name: "Moonshot", format: .openAICompatible,
+                      baseURL: "https://api.moonshot.cn/v1", model: "moonshot-v1-8k"),
+        KnownEndpoint(name: String(localized: "本地 Ollama"), format: .openAICompatible,
+                      baseURL: "http://localhost:11434/v1", model: "qwen2.5:7b"),
     ]
 
-    static let `default` = presets[0]
+    static let `default` = all[0]
 }
 
 enum PrefKey {
@@ -101,6 +131,7 @@ enum PrefKey {
     static let triggerWindow = "triggerWindow"
     static let showMenuBarIcon = "showMenuBarIcon"
     static let excludedApps = "excludedApps"
+    static let apiFormat = "apiFormat"
     static let providerBaseURL = "providerBaseURL"
     static let providerModel = "providerModel"
     static let systemPrompt = "systemPrompt"
@@ -132,12 +163,21 @@ enum Prefs {
         return stored > 0 ? stored : 0.3
     }
 
-    static var provider: AIProvider {
-        let defaults = UserDefaults.standard
-        let baseURL = defaults.string(forKey: PrefKey.providerBaseURL) ?? ""
-        let model = defaults.string(forKey: PrefKey.providerModel) ?? ""
-        guard !baseURL.isEmpty, !model.isEmpty else { return .default }
-        return AIProvider(name: String(localized: "自定义"), baseURL: baseURL, model: model)
+    static var apiFormat: APIFormat {
+        APIFormat(rawValue: UserDefaults.standard.string(forKey: PrefKey.apiFormat) ?? "")
+            ?? .openAICompatible
+    }
+
+    static var baseURL: String {
+        let stored = (UserDefaults.standard.string(forKey: PrefKey.providerBaseURL) ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return stored.isEmpty ? KnownEndpoint.default.baseURL : stored
+    }
+
+    static var model: String {
+        let stored = (UserDefaults.standard.string(forKey: PrefKey.providerModel) ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return stored.isEmpty ? KnownEndpoint.default.model : stored
     }
 
     /// What the text is rewritten into. Any language name the model understands
@@ -156,8 +196,9 @@ enum Prefs {
         return stored.isEmpty ? Rewriter.defaultSystemPrompt : stored
     }
 
-    /// The user's key. There is no fallback — a key baked into the app would be
-    /// the developer's own, spent by whoever runs the build.
+    /// The user's key, or empty. Empty is a legitimate setting: a local model
+    /// answers without one. There is no fallback key — one baked into the app
+    /// would be the developer's own, spent by whoever runs the build.
     static var apiKey: String {
         (Keychain.apiKey ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
     }

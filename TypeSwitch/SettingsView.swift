@@ -193,8 +193,8 @@ private struct TriggerPane: View {
 // MARK: - Provider
 
 private struct ProviderPane: View {
-    @AppStorage(PrefKey.providerBaseURL) private var baseURL = AIProvider.default.baseURL
-    @AppStorage(PrefKey.providerModel) private var model = AIProvider.default.model
+    @AppStorage(PrefKey.providerBaseURL) private var baseURL = KnownEndpoint.default.baseURL
+    @AppStorage(PrefKey.providerModel) private var model = KnownEndpoint.default.model
 
     @AppStorage(PrefKey.systemPrompt) private var prompt = Rewriter.defaultSystemPrompt
     @AppStorage(PrefKey.targetLanguage) private var targetLanguage = "English"
@@ -219,23 +219,10 @@ private struct ProviderPane: View {
             == Rewriter.defaultSystemPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    /// The preset whose address and model both match what is in the fields, if
-    /// any — editing either by hand lands on 自定义.
-    private var matchedPreset: AIProvider? {
-        AIProvider.presets.first { $0.baseURL == baseURL && $0.model == model }
-    }
-
-    private var serviceBinding: Binding<String> {
-        Binding(
-            get: { matchedPreset?.name ?? "" },
-            set: { name in
-                guard let preset = AIProvider.presets.first(where: { $0.name == name })
-                else { return }
-                baseURL = preset.baseURL
-                model = preset.model
-                outcome = nil
-            }
-        )
+    private func fill(from endpoint: KnownEndpoint) {
+        baseURL = endpoint.baseURL
+        model = endpoint.model
+        outcome = nil
     }
 
     var body: some View {
@@ -244,16 +231,14 @@ private struct ProviderPane: View {
             // right, text reading left to right. Wrapping one in LabeledContent
             // right-aligns the content and pushes the placeholder outside.
             Section {
-                // Shows what is selected rather than a permanent "预设" label,
-                // and says what is being picked: the service, which fills in the
-                // two fields below.
-                Picker("服务商", selection: serviceBinding) {
-                    if matchedPreset == nil {
-                        Text("自定义").tag("")
-                    }
-                    ForEach(AIProvider.presets, id: \.name) { preset in
-                        Text(preset.name).tag(preset.name)
-                    }
+                // What the endpoint speaks, which is the only thing that
+                // differs between one address and another. Stated rather than
+                // offered: there is one format today, and a row that names it
+                // tells the user what will be accepted in the field below,
+                // where a menu of one would only pretend to be a choice.
+                LabeledContent("接口格式") {
+                    Text(APIFormat.openAICompatible.name)
+                        .foregroundStyle(.secondary)
                 }
                 TextField("地址", text: $baseURL)
                 TextField("模型", text: $model)
@@ -269,9 +254,22 @@ private struct ProviderPane: View {
                     outcome = nil
                 }
             } header: {
-                Text("接口")
+                HStack {
+                    Text("接口")
+                    Spacer()
+                    // A shortcut, not a setting: it fills the two fields in and
+                    // is then forgotten. Nothing downstream asks which one was
+                    // used, because the request only needs the address.
+                    Menu("常用地址") {
+                        ForEach(KnownEndpoint.all, id: \.name) { endpoint in
+                            Button(endpoint.name) { fill(from: endpoint) }
+                        }
+                    }
+                    .menuStyle(.borderlessButton)
+                    .fixedSize()
+                }
             } footer: {
-                Text("任何兼容 OpenAI 格式的服务都可以填。Key 存在你的钥匙串里，只发给上面这个地址。")
+                Text("任何说这个格式的地址都可以填。Key 存在你的钥匙串里，只发给上面这个地址；跑在本机的模型通常不需要 Key，留空即可。")
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }

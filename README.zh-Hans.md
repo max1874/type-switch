@@ -97,9 +97,10 @@ Key。
 macOS 会把快速敲的两个空格变成句号，用空格触发时它正好夹在中间。设置窗口里直接放
 了这个系统开关，不用切到系统设置去关。
 
-**AI 服务**——接口地址、模型和你的 Key。DeepSeek、OpenAI、Moonshot、本地 Ollama
-四个预设会帮你填好前两项；其他任何支持 `POST /chat/completions` 的服务，自己填地
-址也能用。
+**AI 服务**——接口格式、地址、模型和你的 Key。TypeSwitch 只说一种接口格式，也就是
+兼容 OpenAI 的 `POST /chat/completions`，所以任何说这种格式的地址都能填；「常用地
+址」菜单帮你填好 DeepSeek、OpenAI、Moonshot 或本地 Ollama。跑在你自己机器上的模型
+通常根本不需要 Key，留空就行。
 
 **输出语言**——你的文字要被改写成哪种语言，默认 English。模型认识的语言都可以填。
 
@@ -164,8 +165,9 @@ xcrun notarytool store-credentials TypeSwitch \
 
 - **触发认的是按键，不是按键底下是什么**。终端和代码编辑器里读到的一行，可能是提
   示符或一行代码。「设置 → 触发」里可以列出不触发的 app，默认是空的。
-- **只验证过 DeepSeek 这条链路**。OpenAI、Moonshot、Ollama 三个预设是按各自 API
-  的公开格式写的，没有实际跑通过。
+- **只有一种格式，只在一个地址上验证过**。所有请求走的是同一个兼容 OpenAI 的调用，
+  这个调用在 DeepSeek 上跑通过。说同一种格式的其他地址收到的请求逐字节相同，但没有
+  实际跑过。
 - **撤销行为取决于 app**。走剪贴板兜底路径时，⌘Z 的表现和在那个 app 里撤销一次粘
   贴一样。
 
