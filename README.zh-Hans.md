@@ -138,9 +138,15 @@ open build/TypeSwitch.app
 
 ```sh
 make app       # 构建 TypeSwitch.app 到 build/
+make install   # 把构建结果放进「应用程序」并从那里启动
 make release   # 签名、公证、装订好的 DMG——维护者用
 make clean     # 清掉 build/
 ```
+
+`build/` 只放产物，不要从那里长期运行 app。在一个进程正运行的时候覆盖它的包，这个进程
+的签名就和自己的包对不上了，macOS 随即不再认识它——「辅助功能」和「输入监控」的授权
+悄悄失效，在所有 app 里都读不到文字。`make install` 按「退出 → 替换 → 启动」的顺序来，
+这种状态就不会出现；而构建时如果发现有进程正从将被覆盖的路径运行，会直接停下来。
 
 `make release` 只在维护者自己的机器上跑，不进 CI，所以 Developer ID 证书不会离开
 本机。公证凭证需要预先存一次：

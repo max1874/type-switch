@@ -12,6 +12,20 @@ output="$project_dir/build/TypeSwitch.app"
 
 cd "$project_dir"
 
+# build/ holds artifacts, and nothing is meant to be run from it — `make
+# install` is what updates the copy you use. Replacing a bundle underneath a
+# process running from it costs that process its identity: its code signature
+# stops matching its own bundle, macOS can no longer recognise it, and its
+# Accessibility and Input Monitoring grants stop applying without a word. That
+# is worth a message rather than a silent overwrite.
+running=$(pgrep -f "$output/Contents/MacOS/TypeSwitch" || true)
+if [ -n "$running" ]; then
+    echo "TypeSwitch is running from the path this build overwrites:" >&2
+    echo "  $output" >&2
+    echo "Quit it first, or use 'make install' to move it to /Applications." >&2
+    exit 1
+fi
+
 # `generic/platform=macOS` rather than letting xcodebuild pick a destination:
 # left alone it takes the first match, which names this machine's own
 # architecture and quietly builds for that one alone.

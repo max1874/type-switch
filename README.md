@@ -156,9 +156,18 @@ and the grants stick. That file is gitignored.
 
 ```sh
 make app       # Build TypeSwitch.app into build/
+make install   # Move that build to /Applications and start it there
 make release   # Signed, notarized, stapled DMG — maintainers only
 make clean     # Remove build/
 ```
+
+`build/` holds artifacts and nothing is meant to run from it: replacing a bundle
+while a process is running from it leaves that process with a signature that no
+longer matches its own bundle, and macOS responds by no longer recognising it —
+its Accessibility and Input Monitoring grants stop applying, silently, and text
+becomes unreadable everywhere. `make install` quits, replaces, and launches, in
+that order, so the situation cannot arise. A build refuses to run at all if it
+would overwrite a path something is running from.
 
 `make release` runs on a maintainer's own machine rather than in CI, so the
 Developer ID certificate never leaves it. It needs notarization credentials
