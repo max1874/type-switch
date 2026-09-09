@@ -1,7 +1,11 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @State private var pane: Pane = .trigger
+    @State private var pane: Pane
+
+    init(pane: Pane = .trigger) {
+        _pane = State(initialValue: pane)
+    }
 
     var body: some View {
         NavigationSplitView {

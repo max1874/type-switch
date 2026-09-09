@@ -64,8 +64,8 @@ enum SettingsWindow {
         log.info("settings window shown: \(NSStringFromRect(window.frame), privacy: .public)")
     }
 
-    private static func make() -> NSWindow {
-        let hosting = NSHostingView(rootView: SettingsView())
+    static func make(showing pane: SettingsView.Pane = .trigger) -> NSWindow {
+        let hosting = NSHostingView(rootView: SettingsView(pane: pane))
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 660, height: 540),
             styleMask: [.titled, .closable, .resizable, .fullSizeContentView],
@@ -109,6 +109,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Prefs.registerDefaults()
+
+        #if DEBUG
+        // Launched to draw a picture of itself, not to run. Nothing below here
+        // should happen in that case: no permission prompts, no event tap.
+        if WindowCapture.runIfRequested() { return }
+        #endif
+
         statusObserver = state.$status.sink { [weak self] status in
             self?.hasProblem = status.isProblem
         }
