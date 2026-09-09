@@ -439,6 +439,22 @@
         }
       }
     },
+    "当前 app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "this app"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前 app"
+          }
+        }
+      }
+    },
     "当前位置没有可转换的文字": {
       "localizations": {
         "en": {
@@ -871,18 +887,18 @@
         }
       }
     },
-    "读取文字超时": {
+    "读不到 %@ 里的文字": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Timed out reading the text"
+            "value": "Could not read the text in %@"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "读取文字超时"
+            "value": "读不到 %@ 里的文字"
           }
         }
       }

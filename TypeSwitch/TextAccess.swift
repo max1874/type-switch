@@ -25,7 +25,12 @@ struct TextCapture {
 enum TextAccessError: LocalizedError {
     case noFocusedElement
     case noText
-    case pasteboardTimeout
+    /// Named for what was observed rather than for a guess at the cause. An
+    /// unchanged pasteboard means the copy was never served; whether that is
+    /// because there was nothing to copy or because the app never answered is
+    /// not something this can tell apart, and both read the same to the person
+    /// who triggered it. Saying "timed out" claimed to know.
+    case unreadable(String)
     case axWriteFailed(AXError)
     case appChanged
     case contentChanged
@@ -34,7 +39,7 @@ enum TextAccessError: LocalizedError {
         switch self {
         case .noFocusedElement: String(localized: "找不到当前输入框")
         case .noText: String(localized: "当前位置没有可转换的文字")
-        case .pasteboardTimeout: String(localized: "读取文字超时")
+        case .unreadable(let app): String(localized: "读不到 \(app) 里的文字")
         case .axWriteFailed(let err): String(localized: "写回失败（AXError \(Int(err.rawValue))）")
         case .appChanged: String(localized: "焦点已经切走，没有写回")
         case .contentChanged: String(localized: "文字已经被改动，没有写回")
@@ -135,6 +140,13 @@ enum TextAccess {
         NSWorkspace.shared.frontmostApplication?.processIdentifier ?? -1
     }
 
+    /// The name a person would use for the app in front. An error about
+    /// reading text is only actionable if it says where the reading failed.
+    private static func frontmostName() -> String {
+        NSWorkspace.shared.frontmostApplication?.localizedName
+            ?? String(localized: "当前 app")
+    }
+
     private static func focusedElement() -> AXUIElement? {
         let system = AXUIElementCreateSystemWide()
         var value: CFTypeRef?
@@ -196,25 +208,48 @@ enum TextAccess {
         HotkeyMonitor.suppressed = true
         defer { HotkeyMonitor.suppressed = false }
 
-        // Copy whatever is selected. If nothing is, the pasteboard does not
-        // change and we select back to the start of the line and retry.
-        if let copied = try? copySelection(pasteboard), !copied.isEmpty {
-            return TextCapture(text: copied, path: .pasteboard, element: nil,
-                               range: nil, frontmostPID: frontmostPID())
+        // Is anything already selected? Only a short wait here: if nothing is,
+        // the pasteboard is never going to move, and that is the ordinary case
+        // — every trigger would pay for a longer one.
+        if let copied = copyOnce(pasteboard, waiting: 0.25), !copied.isEmpty {
+            return capture(copied)
         }
 
-        synthesize(keyLeft, flags: [.maskCommand, .maskShift])  // select to line start
-        let copied = try copySelection(pasteboard)
-        guard !copied.isEmpty else { throw TextAccessError.noText }
-        return TextCapture(text: copied, path: .pasteboard, element: nil,
-                               range: nil, frontmostPID: frontmostPID())
+        // Select the line, then copy it. This one is worth both waiting for and
+        // asking twice. The selection keystroke is handled by the target app on
+        // its own schedule, and a copy that arrives before the selection does
+        // copies nothing — an Electron app routinely needs longer than the few
+        // milliseconds a native one does. Rather than guess at that interval,
+        // ask again until the app answers.
+        synthesize(keyLeft, flags: [.maskCommand, .maskShift])
+        for attempt in 0..<3 {
+            if let copied = copyOnce(pasteboard, waiting: 0.4 + Double(attempt) * 0.3),
+               !copied.isEmpty {
+                return capture(copied)
+            }
+        }
+        throw TextAccessError.unreadable(frontmostName())
     }
 
-    private static func copySelection(_ pasteboard: NSPasteboard) throws -> String {
+    private static func capture(_ text: String) -> TextCapture {
+        TextCapture(text: text, path: .pasteboard, element: nil,
+                    range: nil, frontmostPID: frontmostPID())
+    }
+
+    /// One ⌘C, and a wait for the app to serve it. Returns as soon as the
+    /// pasteboard moves, so patience costs nothing when the copy works.
+    private static func copyOnce(_ pasteboard: NSPasteboard, waiting: TimeInterval) -> String? {
         let before = pasteboard.changeCount
         synthesize(keyC, flags: .maskCommand)
-        try waitForChange(pasteboard, from: before)
-        return pasteboard.string(forType: .string) ?? ""
+
+        let deadline = Date().addingTimeInterval(waiting)
+        while Date() < deadline {
+            if pasteboard.changeCount != before {
+                return pasteboard.string(forType: .string)
+            }
+            usleep(10_000)
+        }
+        return nil
     }
 
     private static func writeViaPasteboard(_ text: String) throws {
@@ -233,15 +268,6 @@ enum TextAccess {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
             restore(saved, to: pasteboard)
         }
-    }
-
-    private static func waitForChange(_ pasteboard: NSPasteboard, from before: Int) throws {
-        let deadline = Date().addingTimeInterval(0.5)
-        while Date() < deadline {
-            if pasteboard.changeCount != before { return }
-            usleep(10_000)
-        }
-        throw TextAccessError.pasteboardTimeout
     }
 
     private static func savedItems(of pasteboard: NSPasteboard) -> [NSPasteboardItem] {

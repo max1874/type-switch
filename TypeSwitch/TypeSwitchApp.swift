@@ -162,8 +162,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         do {
             capture = try TextAccess.capture()
         } catch {
-            log.error("capture failed: \(error.localizedDescription, privacy: .public)")
-            fail(error)
+            fail(error, at: "capture")
             return
         }
         log.info("captured via \(capture.path.rawValue, privacy: .public): \(capture.text, privacy: .public)")
@@ -179,15 +178,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         } catch {
             // Capture does not modify the document, so there is nothing to roll
             // back — the user's text is untouched wherever this failed.
-            log.error("rewrite failed: \(error.localizedDescription, privacy: .public)")
-            fail(error)
+            fail(error, at: "rewrite")
         }
     }
 
     /// A failure has to reach the user without being read for: the trigger was
     /// a keystroke, so the only thing to see otherwise is that nothing changed.
     /// The menu carries the same message for anyone who goes looking.
-    private func fail(_ error: Error) {
+    ///
+    /// The log names the app that was in front. Which app it was decides what
+    /// a read failure means, and without it in the log the only way to find
+    /// out afterwards is to go digging through WindowServer's own records.
+    private func fail(_ error: Error, at stage: String) {
+        let app = NSWorkspace.shared.frontmostApplication?.bundleIdentifier ?? "unknown"
+        log.error("""
+            \(stage, privacy: .public) failed in \(app, privacy: .public): \
+            \(error.localizedDescription, privacy: .public)
+            """)
         state.status = .error(error.localizedDescription)
         Notice.show(error.localizedDescription)
     }
