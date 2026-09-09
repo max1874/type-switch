@@ -26,6 +26,10 @@ It works in any app that macOS lets it read — a text editor, a browser field, 
 chat box, a terminal. The language it writes is yours to set: TypeSwitch is not
 built around one language pair.
 
+<p align="center">
+  <img src="docs/settings.png" width="660" alt="TypeSwitch settings, showing the trigger key, tap count and interval, the system two-spaces-insert-a-period switch, the list of apps to ignore, and the menu bar icon toggle">
+</p>
+
 **Read this before installing.** TypeSwitch needs Accessibility and Input
 Monitoring permission, which means it can see everything you type and read the
 text field you are focused on. It sends the one line it rewrites, to the endpoint

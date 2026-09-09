@@ -13,7 +13,11 @@ struct TypeSwitchApp: App {
         MenuBarExtra(isInserted: iconVisible) {
             MenuBarView(state: delegate.state)
         } label: {
-            MenuBarLabel(state: delegate.state)
+            // One icon, always the same one. A glyph that changes with status
+            // turns the menu bar into a display the user has to keep reading;
+            // what went wrong belongs in the menu, where it can say so in
+            // words.
+            Image(systemName: "character.cursor.ibeam")
         }
         .menuBarExtraStyle(.menu)
     }
@@ -27,16 +31,6 @@ struct TypeSwitchApp: App {
             get: { showMenuBarIcon || delegate.hasProblem },
             set: { showMenuBarIcon = $0 }
         )
-    }
-}
-
-/// The icon tracks status, which needs something observing the state object;
-/// the scene itself is not rebuilt for every change.
-private struct MenuBarLabel: View {
-    @ObservedObject var state: AppState
-
-    var body: some View {
-        Image(systemName: state.status.symbolName)
     }
 }
 
@@ -227,15 +221,6 @@ final class AppState: ObservableObject {
             switch self {
             case .idle, .working: false
             case .needsPermission, .error: true
-            }
-        }
-
-        var symbolName: String {
-            switch self {
-            case .idle: "character.cursor.ibeam"
-            case .working: "ellipsis.circle"
-            case .needsPermission: "exclamationmark.triangle"
-            case .error: "xmark.circle"
             }
         }
 

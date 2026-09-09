@@ -24,6 +24,10 @@ Je voudrais 预约 une réunion       →  Je voudrais réserver une réunion
 只要 macOS 允许读取的 app 都能用：文本编辑器、浏览器输入框、聊天框、终端。输出成
 哪种语言由你自己填，TypeSwitch 不是围绕某一对固定语言做的。
 
+<p align="center">
+  <img src="docs/settings.zh-Hans.png" width="660" alt="TypeSwitch 设置窗口：触发键、连按次数与间隔、系统的「连按两次空格加句号」开关、不触发的 app 列表、菜单栏图标开关">
+</p>
+
 **装之前请先看这段。** TypeSwitch 需要「辅助功能」和「输入监控」两项权限，也就是说
 它能看到你敲的每一个键，也能读取你当前所在的输入框。它只把要改写的那一行发出去，
 只发给你自己配置的接口地址，除此之外什么都不发。授权之前请先看完
