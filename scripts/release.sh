@@ -87,6 +87,19 @@ notarize() {
 
     if [ "$submitted" -ne 0 ] || ! grep -q 'status: Accepted' "$submission_log"; then
         echo "Notarization did not come back Accepted for $submission." >&2
+
+        # The verdict comes back from the submission, but never the reason —
+        # that only exists at the log endpoint, and it is the only thing that
+        # says which file Apple objected to. Fetching it here is the difference
+        # between a failure that can be acted on and one that cannot.
+        submission_id=$(sed -n 's/^ *id: \([0-9a-f-]*\)$/\1/p' "$submission_log" | sed -n '1p')
+        if [ -n "$submission_id" ]; then
+            echo "Log for submission $submission_id:" >&2
+            xcrun notarytool log "$submission_id" \
+                --key "$NOTARY_KEY" \
+                --key-id "$NOTARY_KEY_ID" \
+                --issuer "$NOTARY_ISSUER" >&2 || true
+        fi
         exit 1
     fi
 }
