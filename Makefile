@@ -13,9 +13,11 @@ install:
 	./scripts/install.sh
 
 # A signed, notarized, stapled DMG. Runs on this machine, never in CI, so the
-# Developer ID certificate stays here.
+# Developer ID certificate stays here. The pipeline itself lives in the
+# account-level tool (github.com/max1874/apple-developer, `asc`); this repo
+# only builds the .app, `asc notarize` takes over from build/TypeSwitch.app.
 release:
-	./scripts/release.sh
+	asc notarize type-switch
 
 clean:
 	rm -rf build

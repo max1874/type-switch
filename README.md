@@ -176,14 +176,10 @@ that order, so the situation cannot arise. A build refuses to run at all if it
 would overwrite a path something is running from.
 
 `make release` runs on a maintainer's own machine rather than in CI, so the
-Developer ID certificate never leaves it. It reads the notarization
-credentials from `Config/notary.env`, which is gitignored; create it once from
-the example and fill in the three values that come with an App Store Connect
-API key:
-
-```sh
-cp Config/notary.env.example Config/notary.env
-```
+Developer ID certificate never leaves it. This repo only builds the app; the
+signing, notarization, stapling, and DMG steps are the `asc notarize` command
+from the maintainer's account-level tooling, which also holds the App Store
+Connect credentials. Nothing about the account lives in this repo.
 
 ## Known limitations
 
