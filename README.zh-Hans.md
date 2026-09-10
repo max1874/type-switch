@@ -154,12 +154,9 @@ make clean     # 清掉 build/
 这种状态就不会出现；而构建时如果发现有进程正从将被覆盖的路径运行，会直接停下来。
 
 `make release` 只在维护者自己的机器上跑，不进 CI，所以 Developer ID 证书不会离开
-本机。公证凭证从 `Config/notary.env` 读，这个文件已 gitignore；照样例复制一份，填上
-App Store Connect API key 自带的那三个值：
-
-```sh
-cp Config/notary.env.example Config/notary.env
-```
+本机。这个仓库只负责构建 app；签名、公证、装订、打 DMG 这几步是维护者账号级工具里的
+`asc notarize` 命令，App Store Connect 的凭据也在那边。这个仓库里没有任何账号相关的
+东西。
 
 ## 已知限制
 

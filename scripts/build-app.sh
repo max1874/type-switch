@@ -2,7 +2,7 @@
 # Builds TypeSwitch.app into build/ and leaves it there.
 #
 # Signing follows Config/TypeSwitch.xcconfig, so this produces the same
-# development build Xcode does. For a distributable build, use release.sh.
+# development build Xcode does. For a distributable build, use `make release`.
 set -eu
 
 project_dir=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
