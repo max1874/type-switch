@@ -89,9 +89,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         Prefs.registerDefaults()
 
         #if DEBUG
-        // Launched to draw a picture of itself, not to run. Nothing below here
-        // should happen in that case: no permission prompts, no event tap.
+        // Launched to draw a picture of itself, or to send one line to an
+        // endpoint — not to run. Nothing below here should happen in either
+        // case: no permission prompts, no event tap.
         if WindowCapture.runIfRequested() { return }
+        if RewriteCheck.runIfRequested() { return }
         #endif
 
         Permissions.requestAccessibility()

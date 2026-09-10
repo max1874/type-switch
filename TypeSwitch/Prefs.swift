@@ -200,7 +200,16 @@ enum Prefs {
     /// answers without one. There is no fallback key — one baked into the app
     /// would be the developer's own, spent by whoever runs the build.
     static var apiKey: String {
-        (Keychain.apiKey ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        #if DEBUG
+        // A key handed in for a one-off check of some other address, so that
+        // checking one does not mean overwriting the key that is stored.
+        // See RewriteCheck.
+        if let given = ProcessInfo.processInfo.environment["TYPESWITCH_API_KEY"],
+           !given.isEmpty {
+            return given.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        #endif
+        return (Keychain.apiKey ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     static func registerDefaults() {

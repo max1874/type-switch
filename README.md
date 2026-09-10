@@ -190,10 +190,11 @@ cp Config/notary.env.example Config/notary.env
 - **It triggers on a keystroke, not on what is under it.** In a terminal or an
   editor the line it picks up may be a shell prompt or a line of code. Settings
   → Trigger takes a list of apps to ignore; it starts empty.
-- **One format, tested against one address.** Every request goes through the
-  same OpenAI-compatible call, and that call is exercised against DeepSeek.
-  Other addresses speaking the same format send the byte-identical request, but
-  have not been run.
+- **One format.** Every request goes through the same OpenAI-compatible `POST
+  /chat/completions`, which has been run against DeepSeek and against
+  OpenRouter. An address that speaks the format but wants something of its own
+  — one more required parameter, a differently shaped error — has not been
+  ruled out.
 - **Undo depends on the app.** Where the pasteboard fallback is used, ⌘Z behaves
   the way a paste does in that app.
 
