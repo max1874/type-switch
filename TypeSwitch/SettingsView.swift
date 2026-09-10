@@ -10,10 +10,10 @@ struct SettingsView: View {
     var body: some View {
         NavigationSplitView {
             List(Pane.allCases, selection: $pane) { pane in
-                Label(pane.title, systemImage: pane.symbol).tag(pane)
+                PaneRow(pane: pane).tag(pane)
             }
             .listStyle(.sidebar)
-            .navigationSplitViewColumnWidth(162)
+            .navigationSplitViewColumnWidth(178)
         } detail: {
             Group {
                 switch pane {
@@ -47,6 +47,32 @@ struct SettingsView: View {
             }
         }
 
+        /// Each pane gets its own colour, which is what makes a row findable at
+        /// a glance rather than read one word at a time.
+        var tint: Color {
+            switch self {
+            case .trigger: .indigo
+            case .provider: .purple
+            }
+        }
+    }
+}
+
+/// A sidebar row: the symbol in a filled rounded square, the way settings
+/// windows on this platform have come to look.
+private struct PaneRow: View {
+    let pane: SettingsView.Pane
+
+    var body: some View {
+        HStack(spacing: 9) {
+            Image(systemName: pane.symbol)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 21, height: 21)
+                .background(pane.tint.gradient, in: RoundedRectangle(cornerRadius: 5.5))
+            Text(pane.title)
+        }
+        .padding(.vertical, 2)
     }
 }
 
@@ -74,29 +100,27 @@ private struct TriggerPane: View {
                     }
                 }
 
-                // Reads as one sentence rather than three separate settings.
-                LabeledContent("连按") {
-                    HStack(spacing: 6) {
-                        NumberField(value: $triggerCount, range: 2...8, width: 38)
-                        Text("次，间隔")
-                        DecimalField(value: $triggerWindow, range: 0.1...1.0, width: 56)
-                        Text("秒以内")
+                Explained(text: triggerNote) {
+                    // Reads as one sentence rather than three separate settings.
+                    LabeledContent("连按") {
+                        HStack(spacing: 6) {
+                            NumberField(value: $triggerCount, range: 2...8, width: 38)
+                            Text("次，间隔")
+                            DecimalField(value: $triggerWindow, range: 0.1...1.0, width: 56)
+                            Text("秒以内")
+                        }
+                        .foregroundStyle(.secondary)
                     }
-                    .foregroundStyle(.secondary)
                 }
-            } footer: {
-                Text(triggerNote)
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
+            } header: {
+                Text("触发")
             }
 
             if triggerKeyCode == Int(TriggerBinding.space.keyCode) {
                 Section {
-                    Toggle("连按两次空格加句号", isOn: doubleSpacePeriodBinding)
-                } footer: {
-                    Text("这是 macOS 的全局设置，改这里等同于改系统设置，影响所有 app。关掉后用空格触发不会再冒出句号；已经开着的 app 可能要重开才生效。")
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
+                    Explained(text: "这是 macOS 的全局设置，改这里等同于改系统设置，影响所有 app。关掉后用空格触发不会再冒出句号；已经开着的 app 可能要重开才生效。") {
+                        Toggle("连按两次空格加句号", isOn: doubleSpacePeriodBinding)
+                    }
                 }
             }
 
@@ -104,21 +128,17 @@ private struct TriggerPane: View {
                 ForEach(excluded, id: \.self) { bundleID in
                     ExcludedAppRow(bundleID: bundleID) { remove(bundleID) }
                 }
-                Button("添加 app…", action: addApp)
+                Explained(text: "触发键认的是按键，不是按键底下是什么。终端和代码编辑器里读到的一行，很可能是提示符或一行代码而不是正文。") {
+                    Button("添加 app…", action: addApp)
+                }
             } header: {
                 Text("不在这些 app 里触发")
-            } footer: {
-                Text("触发键认的是按键，不是按键底下是什么。终端和代码编辑器里读到的一行，很可能是提示符或一行代码而不是正文。")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
             }
 
             Section {
-                Toggle("在菜单栏显示图标", isOn: $showMenuBarIcon)
-            } footer: {
-                Text("关掉后，再次打开 TypeSwitch 会回到这个窗口。出错时图标会自己回来，否则你不会知道它失败了。")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
+                Explained(text: "关掉后，再次打开 TypeSwitch 会回到这个窗口。出错时屏幕上会弹一条提示，不依赖这个图标。") {
+                    Toggle("在菜单栏显示图标", isOn: $showMenuBarIcon)
+                }
             }
         }
         .formStyle(.grouped)
@@ -242,16 +262,18 @@ private struct ProviderPane: View {
                 }
                 TextField("地址", text: $baseURL)
                 TextField("模型", text: $model)
-                SecureField(
-                    "API Key",
-                    text: $apiKey,
-                    prompt: Text(hasStoredKey ? "已保存，输入可替换" : "sk-…")
-                )
-                .onChange(of: apiKey) { _, new in
-                    let trimmed = new.trimmingCharacters(in: .whitespacesAndNewlines)
-                    Keychain.apiKey = trimmed
-                    hasStoredKey = !trimmed.isEmpty
-                    outcome = nil
+                Explained(text: "任何说这个格式的地址都可以填。Key 存在你的钥匙串里，只发给上面这个地址；跑在本机的模型通常不需要 Key，留空即可。") {
+                    SecureField(
+                        "API Key",
+                        text: $apiKey,
+                        prompt: Text(hasStoredKey ? "已保存，输入可替换" : "sk-…")
+                    )
+                    .onChange(of: apiKey) { _, new in
+                        let trimmed = new.trimmingCharacters(in: .whitespacesAndNewlines)
+                        Keychain.apiKey = trimmed
+                        hasStoredKey = !trimmed.isEmpty
+                        outcome = nil
+                    }
                 }
             } header: {
                 HStack {
@@ -268,27 +290,25 @@ private struct ProviderPane: View {
                     .menuStyle(.borderlessButton)
                     .fixedSize()
                 }
-            } footer: {
-                Text("任何说这个格式的地址都可以填。Key 存在你的钥匙串里，只发给上面这个地址；跑在本机的模型通常不需要 Key，留空即可。")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
             }
 
             Section {
                 TextField("输出语言", text: $targetLanguage, prompt: Text("English"))
-                TextEditor(text: $prompt)
-                    .font(.system(size: 11, design: .monospaced))
-                    .scrollContentBackground(.hidden)
-                    .frame(height: 112)
-                    .padding(8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(Color(nsColor: .textBackgroundColor))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 6)
-                            .strokeBorder(Color(nsColor: .separatorColor))
-                    )
+                Explained(text: "发给模型的原话，其中 \(Rewriter.languagePlaceholder) 会替换成上面的输出语言。删光等同于用回内置指令。") {
+                    TextEditor(text: $prompt)
+                        .font(.system(size: 11, design: .monospaced))
+                        .scrollContentBackground(.hidden)
+                        .frame(height: 112)
+                        .padding(8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color(nsColor: .textBackgroundColor))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .strokeBorder(Color(nsColor: .separatorColor))
+                        )
+                }
             } header: {
                 HStack {
                     Text("改写指令")
@@ -297,10 +317,6 @@ private struct ProviderPane: View {
                         .buttonStyle(.link)
                         .disabled(promptIsDefault)
                 }
-            } footer: {
-                Text("发给模型的原话，其中 \(Rewriter.languagePlaceholder) 会替换成上面的输出语言。删光等同于用回内置指令。")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
             }
 
             Section {
@@ -401,6 +417,28 @@ private struct ExcludedAppRow: View {
             }
             .buttonStyle(.plain)
             .help("不再排除这个 app")
+        }
+    }
+}
+
+/// A control and the sentence explaining it, kept in one row.
+///
+/// A Form draws a divider between rows, so an explanation placed beside its
+/// control belongs to it visibly; the same text as its own row reads as
+/// belonging to the whole group instead, and a group's last explanation ends up
+/// looking like a note about the group.
+private struct Explained<Content: View>: View {
+    let text: LocalizedStringKey
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            content
+            Text(text)
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }

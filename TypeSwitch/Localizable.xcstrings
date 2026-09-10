@@ -151,18 +151,18 @@
         }
       }
     },
-    "关掉后，再次打开 TypeSwitch 会回到这个窗口。出错时图标会自己回来，否则你不会知道它失败了。": {
+    "关掉后，再次打开 TypeSwitch 会回到这个窗口。出错时屏幕上会弹一条提示，不依赖这个图标。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "With it off, opening TypeSwitch again brings you back to this window. The icon comes back on its own when something goes wrong — otherwise a failure would look like nothing happening."
+            "value": "With it off, opening TypeSwitch again brings you back to this window. A failure puts a message on screen, so it does not depend on this icon."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "关掉后，再次打开 TypeSwitch 会回到这个窗口。出错时图标会自己回来，否则你不会知道它失败了。"
+            "value": "关掉后，再次打开 TypeSwitch 会回到这个窗口。出错时屏幕上会弹一条提示，不依赖这个图标。"
           }
         }
       }
