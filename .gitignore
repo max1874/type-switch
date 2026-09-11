@@ -10,3 +10,7 @@ DerivedData/
 
 # Your signing identity — copy Config/Local.xcconfig.example to create this
 Config/Local.xcconfig
+
+# Left over from when this repo did its own notarizing. Kept so a stale
+# copy of your credentials cannot be committed by accident.
+Config/notary.env

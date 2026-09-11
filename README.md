@@ -107,11 +107,15 @@ macOS turns two quick spaces into a period, which lands in the middle of a
 Space-triggered rewrite. The Settings window has a switch for that system
 setting, so you can turn it off without leaving the app.
 
-**AI service** — the format, the address, the model, and your key. TypeSwitch
-speaks one API format, OpenAI-compatible `POST /chat/completions`, so any
-address that speaks it works; the Common addresses menu fills in DeepSeek,
-OpenAI, Moonshot, or a local Ollama for you. A model running on your own
-machine usually wants no key at all, so the key can be left blank.
+**AI service** — pick a service and its address and model are filled in:
+DeepSeek, OpenRouter, OpenAI, Moonshot, or a local Ollama. Type any other
+OpenAI-compatible address and the row reads Custom. Under the address sits the
+URL the rewrite will actually be posted to, so whether yours already ends in its
+version segment is something you can read rather than guess. The model comes
+from a list the address itself supplies, and the key field links to the page
+that hands keys out. A model running on your own machine usually wants no key at
+all, so the key can be left blank. **Test a line** sends the real thing —
+address, key, model and instructions — and shows you what came back.
 
 **Output language** — what your text is rewritten *into*. Default English. Any
 language the model knows works.
