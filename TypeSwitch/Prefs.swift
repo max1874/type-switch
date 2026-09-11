@@ -163,6 +163,7 @@ enum PrefKey {
     static let providerModel = "providerModel"
     static let systemPrompt = "systemPrompt"
     static let targetLanguage = "targetLanguage"
+    static let checkForUpdates = "checkForUpdates"
 }
 
 /// Read side of the settings. The UI writes the same keys through @AppStorage,
@@ -250,6 +251,7 @@ enum Prefs {
             PrefKey.triggerWindow: 0.3,
             PrefKey.showMenuBarIcon: true,
             PrefKey.targetLanguage: "English",
+            PrefKey.checkForUpdates: true,
         ])
     }
 }

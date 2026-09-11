@@ -26,7 +26,7 @@ chat box, a terminal. The language it writes is yours to set: TypeSwitch is not
 built around one language pair.
 
 <p align="center">
-  <img src="docs/settings.png" width="660" alt="TypeSwitch settings, showing the trigger key, tap count and interval, the system two-spaces-insert-a-period switch, the list of apps to ignore, and the menu bar icon toggle">
+  <img src="docs/settings.png" width="660" alt="TypeSwitch settings, showing the trigger key, the tap count and interval, the system two-spaces-insert-a-period switch, and the list of apps never to trigger in">
 </p>
 
 **Read this before installing.** TypeSwitch needs Accessibility and Input
@@ -93,6 +93,22 @@ that address. Nothing is bundled with the app.
 
 Select some text and trigger, and TypeSwitch rewrites the selection. Select
 nothing and it rewrites the line your cursor is on.
+
+## Updating
+
+TypeSwitch replaces itself. It asks GitHub for the latest release on launch, and
+when there is a newer one the menu bar menu offers to install it — no dragging
+to Applications again.
+
+Before anything is replaced, the download is checked against the checksum
+published beside it, and the new copy has to satisfy the same code signing
+requirement the running copy satisfies; a copy that fails either check is
+discarded rather than installed. It then quits, replaces, and reopens, in that
+order — replacing a running app is exactly what silently invalidates its
+Accessibility and Input Monitoring grants.
+
+A copy you built yourself will refuse to update to a release, because the two
+are not signed the same way. Settings → General turns the check off.
 
 ## Settings
 
@@ -202,10 +218,12 @@ Connect credentials. Nothing about the account lives in this repo.
 ## Privacy
 
 The text of one line, or one selection, goes to the endpoint you configured, when
-you trigger it. Nothing else leaves your machine — no telemetry, no analytics, no
-other network calls. Your key lives in your login keychain. The app is not
-sandboxed, because a sandboxed app cannot create an event tap or read another
-app's text.
+you trigger it. The only other request TypeSwitch makes is the update check: on
+launch it asks GitHub what the latest release is, and tells it nothing about you
+— not which version you are on, not who you are. Settings → General turns it
+off. There is no telemetry and no analytics. Your key lives in your login
+keychain. The app is not sandboxed, because a sandboxed app cannot create an
+event tap or read another app's text.
 
 ## License
 

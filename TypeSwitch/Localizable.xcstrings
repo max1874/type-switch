@@ -2,6 +2,38 @@
   "sourceLanguage": "zh-Hans",
   "strings": {
     "": {},
+    "%@ 失败（%d）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ failed (%2$d)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ 失败（%2$d）"
+          }
+        }
+      }
+    },
+    "%@ 这个版本没有附完整的安装包": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Release %@ does not carry a complete download"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 这个版本没有附完整的安装包"
+          }
+        }
+      }
+    },
     "%lld 个": {
       "localizations": {
         "en": {
@@ -50,6 +82,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "English"
+          }
+        }
+      }
+    },
+    "GitHub 返回 %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub returned %lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub 返回 %lld"
           }
         }
       }
@@ -136,6 +184,38 @@
         }
       }
     },
+    "下载到的 app 签名和你正在运行的这份不是同一个身份，已经丢掉": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The downloaded app is not signed by the same identity as the one you are running, and has been discarded"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载到的 app 签名和你正在运行的这份不是同一个身份，已经丢掉"
+          }
+        }
+      }
+    },
+    "下载的文件和它自己的校验和对不上，已经丢掉": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The download does not match its own checksum, and has been discarded"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载的文件和它自己的校验和对不上，已经丢掉"
+          }
+        }
+      }
+    },
     "不再排除这个 app": {
       "localizations": {
         "en": {
@@ -169,6 +249,7 @@
       }
     },
     "任何说这个格式的地址都可以填。Key 存在你的钥匙串里，只发给上面这个地址；跑在本机的模型通常不需要 Key，留空即可。": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -196,6 +277,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "修饰键不输入字符，不会在正文里留下痕迹。"
+          }
+        }
+      }
+    },
+    "先看看 %@ 改了什么…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See what changed in %@…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "先看看 %@ 改了什么…"
           }
         }
       }
@@ -292,6 +389,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "发给模型的原话，其中 %@ 会替换成上面的输出语言。删光等同于用回内置指令。"
+          }
+        }
+      }
+    },
+    "取出新版本": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taking the new version out"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取出新版本"
           }
         }
       }
@@ -404,6 +517,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "右 ⌥"
+          }
+        }
+      }
+    },
+    "启动时向 GitHub 问一次最新的版本号，请求里没有任何关于你的东西。有新版本时，菜单栏的菜单里会出现更新按钮，更新前会校验下载的文件，并确认它和你手上这份是同一个签名身份。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On launch, asks GitHub for the latest version number, and tells it nothing about you. When there is a newer one, an update button appears in the menu bar menu. Before anything is installed the download is checked against its checksum and confirmed to carry the same signing identity as the copy you already have."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启动时向 GitHub 问一次最新的版本号，请求里没有任何关于你的东西。有新版本时，菜单栏的菜单里会出现更新按钮，更新前会校验下载的文件，并确认它和你手上这份是同一个签名身份。"
           }
         }
       }
@@ -584,7 +713,24 @@
         }
       }
     },
+    "已经是最新的 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is the latest there is"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已经是最新的 %@"
+          }
+        }
+      }
+    },
     "常用地址": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -664,6 +810,22 @@
         }
       }
     },
+    "当前版本": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前版本"
+          }
+        }
+      }
+    },
     "恢复默认": {
       "localizations": {
         "en": {
@@ -692,6 +854,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "找不到当前输入框"
+          }
+        }
+      }
+    },
+    "挂载镜像": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mounting the image"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "挂载镜像"
           }
         }
       }
@@ -745,6 +923,7 @@
       }
     },
     "接口格式": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -840,6 +1019,38 @@
         }
       }
     },
+    "更新": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updates"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新"
+          }
+        }
+      }
+    },
+    "更新到 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update to %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新到 %@"
+          }
+        }
+      }
+    },
     "服务": {
       "localizations": {
         "en": {
@@ -900,6 +1111,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "次，间隔"
+          }
+        }
+      }
+    },
+    "正在更新…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updating…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在更新…"
           }
         }
       }
@@ -984,6 +1211,38 @@
         }
       }
     },
+    "现在检查": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check now"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "现在检查"
+          }
+        }
+      }
+    },
+    "看不懂 GitHub 的回复": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub's reply could not be read"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "看不懂 GitHub 的回复"
+          }
+        }
+      }
+    },
     "秒以内": {
       "localizations": {
         "en": {
@@ -1060,6 +1319,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "网络错误：%@"
+          }
+        }
+      }
+    },
+    "自动检查更新": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for updates automatically"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动检查更新"
           }
         }
       }
@@ -1145,6 +1420,7 @@
       }
     },
     "试一句「%@」": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1236,6 +1512,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "还没填 API Key，去设置里填一个"
+          }
+        }
+      }
+    },
+    "还没选": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "not chosen yet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没选"
           }
         }
       }
@@ -1352,6 +1644,22 @@
         }
       }
     },
+    "连不上 GitHub：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cannot reach GitHub: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连不上 GitHub：%@"
+          }
+        }
+      }
+    },
     "连按": {
       "localizations": {
         "en": {
@@ -1428,6 +1736,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "选择"
+          }
+        }
+      }
+    },
+    "通用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通用"
           }
         }
       }

@@ -94,6 +94,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         // case: no permission prompts, no event tap.
         if WindowCapture.runIfRequested() { return }
         if RewriteCheck.runIfRequested() { return }
+        if UpdateCheck.runIfRequested() { return }
         #endif
 
         Permissions.requestAccessibility()
@@ -106,6 +107,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
 
         monitor = HotkeyMonitor { [weak self] in
             self?.handleTrigger()
+        }
+
+        // After the app is up and working, not during launch: an update is
+        // never the reason someone opened this, and a check that fails on its
+        // own says nothing.
+        if UserDefaults.standard.bool(forKey: PrefKey.checkForUpdates) {
+            Task {
+                try? await Task.sleep(for: .seconds(3))
+                await Updater.shared.check(asked: false)
+            }
         }
 
         if !startMonitoring() {

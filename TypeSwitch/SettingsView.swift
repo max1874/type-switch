@@ -17,6 +17,7 @@ struct SettingsView: View {
         } detail: {
             Group {
                 switch pane {
+                case .general: GeneralPane()
                 case .trigger: TriggerPane()
                 case .provider: ProviderPane()
                 }
@@ -27,7 +28,7 @@ struct SettingsView: View {
     }
 
     enum Pane: String, CaseIterable, Identifiable {
-        case trigger, provider
+        case general, trigger, provider
 
         var id: String { rawValue }
 
@@ -35,6 +36,7 @@ struct SettingsView: View {
         /// Label or navigationTitle is displayed verbatim, never looked up.
         var title: LocalizedStringKey {
             switch self {
+            case .general: "通用"
             case .trigger: "触发"
             case .provider: "AI 服务"
             }
@@ -42,6 +44,7 @@ struct SettingsView: View {
 
         var symbol: String {
             switch self {
+            case .general: "gearshape"
             case .trigger: "keyboard"
             case .provider: "sparkles"
             }
@@ -51,6 +54,7 @@ struct SettingsView: View {
         /// a glance rather than read one word at a time.
         var tint: Color {
             switch self {
+            case .general: .gray
             case .trigger: .indigo
             case .provider: .purple
             }
@@ -76,6 +80,63 @@ private struct PaneRow: View {
     }
 }
 
+// MARK: - General
+
+/// What the app does when it is not rewriting anything: whether it shows up in
+/// the menu bar, and how it gets replaced by a newer copy of itself.
+private struct GeneralPane: View {
+    @AppStorage(PrefKey.showMenuBarIcon) private var showMenuBarIcon = true
+    @AppStorage(PrefKey.checkForUpdates) private var checkForUpdates = true
+
+    @ObservedObject private var updater = Updater.shared
+
+    var body: some View {
+        Form {
+            Section {
+                Explained(text: "关掉后，再次打开 TypeSwitch 会回到这个窗口。出错时屏幕上会弹一条提示，不依赖这个图标。") {
+                    Toggle("在菜单栏显示图标", isOn: $showMenuBarIcon)
+                }
+            }
+
+            Section {
+                LabeledContent("当前版本") {
+                    Text(verbatim: Updater.currentVersion).foregroundStyle(.secondary)
+                }
+                Explained(text: "启动时向 GitHub 问一次最新的版本号，请求里没有任何关于你的东西。有新版本时，菜单栏的菜单里会出现更新按钮，更新前会校验下载的文件，并确认它和你手上这份是同一个签名身份。") {
+                    HStack {
+                        Toggle("自动检查更新", isOn: $checkForUpdates)
+                        Spacer()
+                        if case .checking = updater.stage {
+                            ProgressView().controlSize(.small)
+                        } else {
+                            Button("现在检查") {
+                                Task { await updater.check(asked: true) }
+                            }
+                        }
+                    }
+                }
+                if case .found(let available) = updater.stage {
+                    HStack(spacing: 10) {
+                        Button("更新到 \(available.version)") { updater.install(available) }
+                            .buttonStyle(.borderedProminent)
+                        Link("先看看 \(available.version) 改了什么…", destination: available.page)
+                            .font(.callout)
+                    }
+                }
+                if case .installing = updater.stage {
+                    HStack(spacing: 8) {
+                        ProgressView().controlSize(.small)
+                        Text("正在更新…").foregroundStyle(.secondary)
+                    }
+                }
+            } header: {
+                Text("更新")
+            }
+        }
+        .formStyle(.grouped)
+    }
+}
+
 // MARK: - Trigger
 
 private struct TriggerPane: View {
@@ -84,7 +145,6 @@ private struct TriggerPane: View {
     @AppStorage(PrefKey.triggerCharacter) private var triggerCharacter = TriggerBinding.space.character
     @AppStorage(PrefKey.triggerCount) private var triggerCount = 3
     @AppStorage(PrefKey.triggerWindow) private var triggerWindow = 0.3
-    @AppStorage(PrefKey.showMenuBarIcon) private var showMenuBarIcon = true
 
     @State private var doubleSpacePeriod = SystemTextPrefs.doubleSpacePeriod
     @State private var excluded = ExcludedApps.bundleIDs
@@ -135,11 +195,6 @@ private struct TriggerPane: View {
                 Text("不在这些 app 里触发")
             }
 
-            Section {
-                Explained(text: "关掉后，再次打开 TypeSwitch 会回到这个窗口。出错时屏幕上会弹一条提示，不依赖这个图标。") {
-                    Toggle("在菜单栏显示图标", isOn: $showMenuBarIcon)
-                }
-            }
         }
         .formStyle(.grouped)
         .onAppear { doubleSpacePeriod = SystemTextPrefs.doubleSpacePeriod }
