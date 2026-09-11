@@ -49,6 +49,39 @@ enum UpdateCheck {
             exit(0)
         }
 
+        // Everything the real update does except the replacing: fetch, check
+        // the checksum, check the signature, unpack. A debug build is signed
+        // the wrong way to be its own reference, so the app whose requirement
+        // the download must satisfy is named on the command line.
+        if let flag = arguments.firstIndex(of: "--update-fetch") {
+            guard arguments.indices.contains(flag + 1) else {
+                fail("--update-fetch needs the app to check the download against")
+            }
+            let reference = URL(fileURLWithPath: arguments[flag + 1])
+            Task {
+                do {
+                    // The published release, whatever it is. Going through the
+                    // version comparison would mean faking this build's
+                    // version, and editing Info.plist to do that breaks the
+                    // signature, which is the very thing being tested here.
+                    let update = try await Updater.latest()
+                    let staged = try await Updater.fetchAndVerify(update, against: reference)
+                    let version = Bundle(url: staged)?
+                        .infoDictionary?["CFBundleShortVersionString"] as? String
+                    print("checksum ok, signature ok")
+                    print("  staged:  \(staged.path)")
+                    print("  version: \(version ?? "unreadable")")
+                    try? FileManager.default.removeItem(
+                        at: staged.deletingLastPathComponent()
+                    )
+                    exit(0)
+                } catch {
+                    fail(error.localizedDescription)
+                }
+            }
+            return true
+        }
+
         guard arguments.contains("--update-latest") else { return false }
         Task {
             await Updater.shared.check(asked: true)

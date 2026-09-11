@@ -109,7 +109,7 @@ final class Updater: ObservableObject {
 
     // MARK: Looking
 
-    private static func latest() async throws -> Update {
+    static func latest() async throws -> Update {
         var request = URLRequest(
             url: URL(string: "https://api.github.com/repos/\(repository)/releases/latest")!
         )
@@ -182,20 +182,39 @@ final class Updater: ObservableObject {
     // MARK: Fetching
 
     /// Returns a verified copy of the new app, outside the disk image.
-    private static func fetchAndVerify(_ update: Update) async throws -> URL {
+    ///
+    /// `reference` is the app whose signing requirement the download has to
+    /// satisfy, and is this one in every real use. It is a parameter so the
+    /// same code can be pointed at a known-good pair from the command line.
+    static func fetchAndVerify(
+        _ update: Update, against reference: URL = Bundle.main.bundleURL
+    ) async throws -> URL {
         let staging = FileManager.default.temporaryDirectory
             .appendingPathComponent("TypeSwitch-update-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: staging, withIntermediateDirectories: true)
 
+        do {
+            return try await fetch(update, into: staging, against: reference)
+        } catch {
+            // Out here rather than at each failure inside: the image is still
+            // attached at the point a check fails, its mountpoint lives in this
+            // directory, and a directory with something mounted in it does not
+            // delete. Detaching is the inner function's business, and it has
+            // happened by the time this runs.
+            try? FileManager.default.removeItem(at: staging)
+            throw error
+        }
+    }
+
+    private static func fetch(
+        _ update: Update, into staging: URL, against reference: URL
+    ) async throws -> URL {
         let image = try await download(update.image, into: staging)
         let published = try await downloadText(update.checksum)
 
         guard let expected = published.split(whereSeparator: \.isWhitespace).first.map(String.init),
               try sha256(of: image).caseInsensitiveCompare(expected) == .orderedSame
-        else {
-            try? FileManager.default.removeItem(at: staging)
-            throw UpdateError.checksumMismatch
-        }
+        else { throw UpdateError.checksumMismatch }
 
         let mount = staging.appendingPathComponent("mount")
         // -nobrowse so this never appears in Finder. A staging volume that the
@@ -209,12 +228,7 @@ final class Updater: ObservableObject {
         let inside = mount.appendingPathComponent(
             Bundle.main.bundleURL.lastPathComponent
         )
-        do {
-            try verifySameIdentity(inside)
-        } catch {
-            try? FileManager.default.removeItem(at: staging)
-            throw error
-        }
+        try verifySameIdentity(inside, as: reference)
 
         let staged = staging.appendingPathComponent(inside.lastPathComponent)
         try run("/usr/bin/ditto", [inside.path, staged.path],
