@@ -23,6 +23,8 @@ import AppKit
 @MainActor
 enum RewriteCheck {
     static func runIfRequested() -> Bool {
+        if models() { return true }
+
         let arguments = ProcessInfo.processInfo.arguments
         guard let flag = arguments.firstIndex(of: "--rewrite") else { return false }
         guard arguments.indices.contains(flag + 1) else {
@@ -39,6 +41,27 @@ enum RewriteCheck {
                 print("  in:  \(text)")
                 print("  out: \(rewritten)")
                 print("  \(ms)ms")
+                exit(0)
+            } catch {
+                fail(error.localizedDescription)
+            }
+        }
+        return true
+    }
+
+    /// `TypeSwitch --models -providerBaseURL …` — what the settings window's
+    /// model list will be asking for, asked from here where the answer can be
+    /// read in full.
+    private static func models() -> Bool {
+        guard ProcessInfo.processInfo.arguments.contains("--models") else { return false }
+        let baseURL = Prefs.baseURL
+        print("\(baseURL)  key: \(Prefs.apiKey.isEmpty ? "none" : "set")")
+        Task {
+            do {
+                let names = try await ModelCatalog.fetch(baseURL: baseURL, key: Prefs.apiKey)
+                print("  \(names.count) models")
+                for name in names.prefix(8) { print("    \(name)") }
+                if names.count > 8 { print("    … and \(names.count - 8) more") }
                 exit(0)
             } catch {
                 fail(error.localizedDescription)

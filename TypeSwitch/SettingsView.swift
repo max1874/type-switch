@@ -223,11 +223,15 @@ private struct ProviderPane: View {
     // way, so reading the secret back to fill it in buys nothing — and reading
     // it is exactly what raises the keychain's access prompt. Whether one is
     // stored can be answered without touching the secret; the secret itself is
-    // read in one place now, when a request is actually made.
+    // read only when a request is actually made.
     @State private var apiKey = ""
     @State private var hasStoredKey = Keychain.hasAPIKey
+    @State private var keyEdited = false
+    @FocusState private var keyFocused: Bool
+
     @State private var outcome: TestOutcome?
     @State private var testing = false
+    @State private var choosingModel = false
 
     /// A sentence that is itself half in another language, so the test shows
     /// what the app actually does. Localized, because the demo only reads as a
@@ -239,57 +243,122 @@ private struct ProviderPane: View {
             == Rewriter.defaultSystemPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    /// The service the current address belongs to, or nil once it has been
+    /// edited into something we do not recognise.
+    private var service: KnownEndpoint? { KnownEndpoint.matching(baseURL) }
+
+    private static let custom = "__custom__"
+
+    /// Picking a service is picking an address and a model. Reading it back
+    /// from the address is what lets the row say a name instead of a URL, and
+    /// means an address typed by hand is still described honestly as custom.
+    private var serviceName: Binding<String> {
+        Binding(
+            get: { service?.name ?? Self.custom },
+            set: { name in
+                guard let chosen = KnownEndpoint.all.first(where: { $0.name == name }) else { return }
+                fill(from: chosen)
+            }
+        )
+    }
+
     private func fill(from endpoint: KnownEndpoint) {
         baseURL = endpoint.baseURL
         model = endpoint.model
         outcome = nil
     }
 
+    /// The URL the rewrite will actually be posted to.
+    ///
+    /// Nothing about `https://api.deepseek.com` next to `https://api.openai.com/v1`
+    /// says which one already ends in its version segment, and getting it wrong
+    /// produces a 404 from somewhere else entirely, later. Showing the finished
+    /// URL turns that into something you can read and check before you commit.
+    private var requestURL: URL? { Endpoint.chatCompletions(baseURL) }
+
     var body: some View {
         Form {
-            // A Form lays a labelled TextField out on its own: label left, field
-            // right, text reading left to right. Wrapping one in LabeledContent
-            // right-aligns the content and pushes the placeholder outside.
+            // A macOS TextField draws its own label to the left of the field, so
+            // these rows keep the Form's two-column look even when wrapped in a
+            // stack to hang something underneath them.
             Section {
-                // What the endpoint speaks, which is the only thing that
-                // differs between one address and another. Stated rather than
-                // offered: there is one format today, and a row that names it
-                // tells the user what will be accepted in the field below,
-                // where a menu of one would only pretend to be a choice.
-                LabeledContent("接口格式") {
-                    Text(APIFormat.openAICompatible.name)
-                        .foregroundStyle(.secondary)
+                Picker("服务", selection: serviceName) {
+                    ForEach(KnownEndpoint.all, id: \.name) { endpoint in
+                        Text(endpoint.name).tag(endpoint.name)
+                    }
+                    // Offered only when that is already the situation: custom is
+                    // a state you end up in by typing an address, not an action.
+                    if service == nil {
+                        Divider()
+                        Text("自定义").tag(Self.custom)
+                    }
                 }
-                TextField("地址", text: $baseURL)
-                TextField("模型", text: $model)
-                Explained(text: "任何说这个格式的地址都可以填。Key 存在你的钥匙串里，只发给上面这个地址；跑在本机的模型通常不需要 Key，留空即可。") {
+
+                VStack(alignment: .leading, spacing: 5) {
+                    TextField("地址", text: $baseURL)
+                    // No reset button beside this: picking the service again is
+                    // the same action, and the picker is already showing
+                    // "custom" the moment the address stops matching one.
+                    requestPreview
+                }
+                .onChange(of: baseURL) { outcome = nil }
+
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack(spacing: 6) {
+                        TextField("模型", text: $model, prompt: Text("还没选"))
+                        Button {
+                            keyFocused = false
+                            choosingModel = true
+                        } label: {
+                            Image(systemName: "list.bullet")
+                        }
+                        .help("列出这个地址上有哪些模型")
+                    }
+                    // Only while there is nothing to run: an icon button is
+                    // discoverable by hovering it, which is no help to someone
+                    // who does not yet know a list is available. Once a model is
+                    // set, the sentence has done its job and would be noise.
+                    if model.trimmingCharacters(in: .whitespaces).isEmpty {
+                        Text("点右边，让这个地址自己列出它有哪些模型。")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .onChange(of: model) { outcome = nil }
+
+                Explained(text: keyNote) {
                     SecureField(
                         "API Key",
                         text: $apiKey,
                         prompt: Text(hasStoredKey ? "已保存，输入可替换" : "sk-…")
                     )
-                    .onChange(of: apiKey) { _, new in
-                        let trimmed = new.trimmingCharacters(in: .whitespacesAndNewlines)
-                        Keychain.apiKey = trimmed
-                        hasStoredKey = !trimmed.isEmpty
-                        outcome = nil
-                    }
+                    .focused($keyFocused)
+                    .onChange(of: apiKey) { keyEdited = true; outcome = nil }
+                    .onSubmit(commitKey)
+                    // Written when you leave the field, not on every keystroke:
+                    // typing one by hand used to put s, sk, sk-, sk-1 … into the
+                    // keychain in turn, and the placeholder claimed a key was
+                    // saved from the first character on.
+                    .onChange(of: keyFocused) { _, focused in if !focused { commitKey() } }
                 }
+
+                check
             } header: {
                 HStack {
                     Text("接口")
                     Spacer()
-                    // A shortcut, not a setting: it fills the two fields in and
-                    // is then forgotten. Nothing downstream asks which one was
-                    // used, because the request only needs the address.
-                    Menu("常用地址") {
-                        ForEach(KnownEndpoint.all, id: \.name) { endpoint in
-                            Button(endpoint.name) { fill(from: endpoint) }
-                        }
+                    if let service, let keyURL = service.keyURL,
+                       let url = URL(string: keyURL) {
+                        Link("到 \(service.name) 拿 Key", destination: url)
+                            .font(.callout)
                     }
-                    .menuStyle(.borderlessButton)
-                    .fixedSize()
                 }
+            } footer: {
+                // Says what it speaks rather than offering it: there is one
+                // format today, and a menu of one would pretend to be a choice.
+                Text("只说一种格式：\(APIFormat.openAICompatible.name) 的 \(Text("POST /chat/completions").monospaced())。任何说这套格式的地址都可以填。")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
             }
 
             Section {
@@ -319,36 +388,117 @@ private struct ProviderPane: View {
                 }
             }
 
-            Section {
-                HStack(spacing: 10) {
-                    Button("试一句「\(Self.sample)」") { runTest() }
-                        .disabled(testing)
-                    if testing { ProgressView().controlSize(.small) }
-                    result
-                }
-            }
         }
         .formStyle(.grouped)
+        .onDisappear(perform: commitKey)
+        .sheet(isPresented: $choosingModel) {
+            ModelPicker(baseURL: baseURL, model: $model)
+        }
+    }
+
+    // MARK: Address
+
+    @ViewBuilder
+    private var requestPreview: some View {
+        if let requestURL {
+            Text(verbatim: "→ \(requestURL.absoluteString)")
+                .font(.callout)
+                .monospaced()
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .textSelection(.enabled)
+                .help(String(localized: "改写请求会发到这个地址"))
+        } else {
+            Text("这不是一个能用的地址")
+                .font(.callout)
+                .foregroundStyle(.red)
+        }
+    }
+
+    // MARK: Key
+
+    private var keyNote: LocalizedStringKey {
+        service?.keyURL == nil && service != nil
+            ? "跑在这台机器上的模型通常不要 Key，留空就行。"
+            : "Key 存在你的钥匙串里，只发给上面这个地址。"
+    }
+
+    /// Empty means "leave what is stored alone" until the field has been
+    /// touched — the field starts empty every time the window opens, and
+    /// treating that as a deletion would throw the key away for opening the
+    /// window. Emptied by hand, it is a deletion.
+    private func commitKey() {
+        guard keyEdited else { return }
+        let trimmed = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        Keychain.apiKey = trimmed
+        hasStoredKey = !trimmed.isEmpty
+        keyEdited = false
+        // Cleared so the placeholder can say it landed. A SecureField shows the
+        // same row of dots whatever it holds, so the field itself can never be
+        // the confirmation that anything was saved.
+        apiKey = ""
+    }
+
+    // MARK: Check
+
+    /// The check is here, under the three fields it checks, rather than at the
+    /// end of the window: it answers a question you have while you are filling
+    /// them in. It sends the real thing — same address, key, model, and
+    /// instructions the trigger uses — so a pass means the app works, not that
+    /// something replied.
+    @ViewBuilder
+    private var check: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 10) {
+                Button("测试一句", action: runTest)
+                    .disabled(testing)
+                if testing { ProgressView().controlSize(.small) }
+            }
+            result
+        }
     }
 
     @ViewBuilder
     private var result: some View {
         switch outcome {
-        case .ok(let text):
-            Text(text).foregroundStyle(.secondary).textSelection(.enabled).lineLimit(1)
+        case .ok(let text, let ms):
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                // The sample and what came back, together: the point is not that
+                // the endpoint answered but that it answered like this.
+                Text(verbatim: "\(Self.sample) → \(text)")
+                    .textSelection(.enabled)
+                Text(verbatim: "\(ms) ms")
+                    .foregroundStyle(.tertiary)
+                    .monospacedDigit()
+            }
+            .font(.callout)
+            .fixedSize(horizontal: false, vertical: true)
         case .failed(let message):
-            Text(message).foregroundStyle(.red).textSelection(.enabled).lineLimit(2)
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
+                Text(message).textSelection(.enabled)
+            }
+            .font(.callout)
+            .fixedSize(horizontal: false, vertical: true)
         case nil:
             EmptyView()
         }
     }
 
     private func runTest() {
+        // Whatever is half-typed in the key field is what the user means to
+        // test, so it has to be stored before the request reads it back.
+        keyFocused = false
+        commitKey()
         testing = true
         outcome = nil
         Task {
+            let started = Date()
             do {
-                outcome = .ok(try await Rewriter.rewrite(Self.sample))
+                let text = try await Rewriter.rewrite(Self.sample)
+                outcome = .ok(text, Int(Date().timeIntervalSince(started) * 1000))
             } catch {
                 outcome = .failed(error.localizedDescription)
             }
@@ -358,8 +508,126 @@ private struct ProviderPane: View {
 }
 
 private enum TestOutcome {
-    case ok(String)
+    case ok(String, Int)
     case failed(String)
+}
+
+/// What this address can run, asked of the address.
+///
+/// The model name is the one field nobody can be expected to know: it is a fact
+/// about the endpoint rather than a preference, the endpoint can be asked, and
+/// a typo in it surfaces much later as a 404 that reads like an address
+/// problem. A search field rather than a plain list because one address offers
+/// four models and another offers four hundred.
+struct ModelPicker: View {
+    let baseURL: String
+    @Binding var model: String
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var names: [String] = []
+    @State private var query = ""
+    @State private var loading = true
+    @State private var failure: String?
+
+    private var shown: [String] {
+        let wanted = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !wanted.isEmpty else { return names }
+        return names.filter { $0.localizedCaseInsensitiveContains(wanted) }
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text("这个地址上的模型").font(.headline)
+                    Spacer()
+                    if !loading, failure == nil {
+                        Text("\(names.count) 个").foregroundStyle(.secondary)
+                    }
+                }
+                // A sheet has no toolbar to hang `.searchable` on, so the filter
+                // is a field. One address offers four models and another offers
+                // four hundred; the field earns its place at the second kind.
+                if !loading, failure == nil, names.count > 8 {
+                    HStack(spacing: 6) {
+                        Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                        TextField("筛选", text: $query)
+                            .textFieldStyle(.plain)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(Color(nsColor: .textBackgroundColor))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .strokeBorder(Color(nsColor: .separatorColor))
+                    )
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 16)
+            .padding(.bottom, 10)
+
+            if loading {
+                centred { ProgressView() }
+            } else if let failure {
+                centred {
+                    VStack(spacing: 8) {
+                        Text(failure)
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Button("重试") { load() }
+                    }
+                    .padding(.horizontal, 24)
+                }
+            } else {
+                // The current model is preselected, so opening this on a working
+                // setup shows where you already are rather than the top of an
+                // alphabet.
+                List(shown, id: \.self, selection: Binding(get: { model }, set: choose)) { name in
+                    Text(name)
+                        .monospaced()
+                        .tag(name)
+                }
+                .listStyle(.inset)
+                .frame(minHeight: 240)
+            }
+
+            Divider()
+            HStack {
+                Spacer()
+                Button("取消") { dismiss() }.keyboardShortcut(.cancelAction)
+            }
+            .padding(12)
+        }
+        .frame(width: 420, height: 400)
+        .onAppear(perform: load)
+    }
+
+    private func choose(_ name: String) {
+        model = name
+        dismiss()
+    }
+
+    private func centred<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        VStack { Spacer(); content(); Spacer() }.frame(maxWidth: .infinity)
+    }
+
+    private func load() {
+        loading = true
+        failure = nil
+        Task {
+            do {
+                names = try await ModelCatalog.fetch(baseURL: baseURL, key: Prefs.apiKey)
+            } catch {
+                failure = error.localizedDescription
+            }
+            loading = false
+        }
+    }
 }
 
 // MARK: - Components

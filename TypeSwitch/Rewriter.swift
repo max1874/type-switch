@@ -13,6 +13,18 @@ enum RewriteError: LocalizedError {
         case .missingAPIKey: String(localized: "还没填 API Key，去设置里填一个")
         case .nothingToRewrite: String(localized: "这一行没有可转换的文字")
         case .badProviderURL(let url): String(localized: "接口地址无效：\(url)")
+        // The endpoint's own words are kept, always — it is the only party that
+        // knows what actually went wrong, and its message frequently names the
+        // model or the key outright. What is added is the part it cannot say:
+        // which of the three things on the settings page to go and look at.
+        case .http(401, let message), .http(403, let message):
+            String(localized: "Key 不对，或者它没有权限用这个模型：\(message)")
+        case .http(404, let message):
+            String(localized: "地址或模型不对，接口说找不到：\(message)")
+        case .http(429, let message):
+            String(localized: "请求太密，等一会儿再试：\(message)")
+        case .http(let code, let message) where code >= 500:
+            String(localized: "对方服务出错了（\(code)），不是你的配置问题：\(message)")
         case .http(let code, let message): String(localized: "接口返回 \(code)：\(message)")
         case .emptyResponse: String(localized: "接口没有返回内容")
         case .transport(let message): String(localized: "网络错误：\(message)")
@@ -26,15 +38,6 @@ enum RewriteError: LocalizedError {
 /// and the text is written back in one call anyway, so streaming would only add
 /// parsing complexity without changing what the user sees.
 enum Rewriter {
-    private static func chatCompletionsURL(_ baseURL: String) throws -> URL {
-        let base = baseURL.trimmingCharacters(in: .whitespaces)
-            .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-        guard let url = URL(string: base + "/chat/completions") else {
-            throw RewriteError.badProviderURL(baseURL)
-        }
-        return url
-    }
-
     /// Parameters only one vendor understands, keyed by the address they belong
     /// to rather than by which shortcut was last clicked — the address can be
     /// typed by hand, and then no shortcut was clicked at all.
@@ -85,7 +88,10 @@ enum Rewriter {
         let key = Prefs.apiKey
         let baseURL = Prefs.baseURL
 
-        var request = URLRequest(url: try chatCompletionsURL(baseURL))
+        guard let url = Endpoint.chatCompletions(baseURL) else {
+            throw RewriteError.badProviderURL(baseURL)
+        }
+        var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.timeoutInterval = 15
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")

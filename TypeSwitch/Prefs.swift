@@ -97,30 +97,57 @@ enum APIFormat: String, CaseIterable, Identifiable {
     }
 }
 
-/// An address worth having on hand, so that two fields do not have to be typed
-/// from memory.
+/// An address worth having on hand, so that nothing has to be typed from
+/// memory.
 ///
 /// Not a setting: choosing one fills the fields in and is then forgotten, and
 /// nothing downstream asks which one was chosen. What is stored is the address
-/// and the model, because that is all the request needs.
+/// and the model, because that is all the request needs. The service is
+/// recognised back from the address when the window is next opened, which is
+/// what lets the window say "DeepSeek" instead of making the user read a URL.
 struct KnownEndpoint {
     var name: String
     var format: APIFormat
     var baseURL: String
     var model: String
+    /// The page that hands out keys. Nil for an address that wants none —
+    /// a model on this machine — where a link would only be a dead end.
+    var keyURL: String?
 
     static let all: [KnownEndpoint] = [
         KnownEndpoint(name: "DeepSeek", format: .openAICompatible,
-                      baseURL: "https://api.deepseek.com", model: "deepseek-v4-flash"),
+                      baseURL: "https://api.deepseek.com", model: "deepseek-v4-flash",
+                      keyURL: "https://platform.deepseek.com/api_keys"),
+        KnownEndpoint(name: "OpenRouter", format: .openAICompatible,
+                      baseURL: "https://openrouter.ai/api/v1", model: "openai/gpt-4o-mini",
+                      keyURL: "https://openrouter.ai/keys"),
         KnownEndpoint(name: "OpenAI", format: .openAICompatible,
-                      baseURL: "https://api.openai.com/v1", model: "gpt-5-mini"),
+                      baseURL: "https://api.openai.com/v1", model: "gpt-5-mini",
+                      keyURL: "https://platform.openai.com/api-keys"),
         KnownEndpoint(name: "Moonshot", format: .openAICompatible,
-                      baseURL: "https://api.moonshot.cn/v1", model: "moonshot-v1-8k"),
+                      baseURL: "https://api.moonshot.cn/v1", model: "moonshot-v1-8k",
+                      keyURL: "https://platform.moonshot.cn/console/api-keys"),
         KnownEndpoint(name: String(localized: "本地 Ollama"), format: .openAICompatible,
-                      baseURL: "http://localhost:11434/v1", model: "qwen2.5:7b"),
+                      baseURL: "http://localhost:11434/v1", model: "qwen2.5:7b",
+                      keyURL: nil),
     ]
 
     static let `default` = all[0]
+
+    /// The service at this address, if it is one we know. Compared loosely
+    /// because a user who pasted a trailing slash, or typed the host in capitals,
+    /// is still pointed at the same service.
+    static func matching(_ baseURL: String) -> KnownEndpoint? {
+        let wanted = normalize(baseURL)
+        guard !wanted.isEmpty else { return nil }
+        return all.first { normalize($0.baseURL) == wanted }
+    }
+
+    private static func normalize(_ url: String) -> String {
+        url.trimmingCharacters(in: .whitespacesAndNewlines)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+            .lowercased()
+    }
 }
 
 enum PrefKey {
@@ -204,8 +231,13 @@ enum Prefs {
         // A key handed in for a one-off check of some other address, so that
         // checking one does not mean overwriting the key that is stored.
         // See RewriteCheck.
-        if let given = ProcessInfo.processInfo.environment["TYPESWITCH_API_KEY"],
-           !given.isEmpty {
+        //
+        // Set but empty means "no key", not "fall back to the keychain". A
+        // debug build is signed ad-hoc, so it is not the identity the stored
+        // key's ACL trusts, and reaching for it puts a keychain password prompt
+        // on someone's screen to no purpose — observed once, denied, and worth
+        // making unreachable rather than remembering not to do.
+        if let given = ProcessInfo.processInfo.environment["TYPESWITCH_API_KEY"] {
             return given.trimmingCharacters(in: .whitespacesAndNewlines)
         }
         #endif

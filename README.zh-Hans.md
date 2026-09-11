@@ -137,7 +137,8 @@ open build/TypeSwitch.app
 
 工程默认用 ad-hoc 签名，没有 Apple 开发者账号也能构建。代价是 macOS 把「辅助功能」
 和「输入监控」的授权绑定在签名上，而 ad-hoc 签名每次构建都会变——所以每次重新构建
-都要重新授权一次。如果你有开发者账号，执行
+都要重新授权一次。存在钥匙串里的 API Key 同样绑在签名上，重新构建出来的那份要读它
+时，会先弹窗问你要登录密码。如果你有开发者账号，执行
 `cp Config/Local.xcconfig.example Config/Local.xcconfig`，把自己的 Team ID 填进去，
 授权就能一直保留。这个文件已经在 .gitignore 里。
 

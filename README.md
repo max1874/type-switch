@@ -156,7 +156,9 @@ open build/TypeSwitch.app
 The project signs ad-hoc by default, so it builds with no Apple developer
 account. The catch is that macOS ties Accessibility and Input Monitoring grants
 to the signature, and an ad-hoc signature changes on every build — so you
-re-approve TypeSwitch each time you rebuild. If you have a developer account,
+re-approve TypeSwitch each time you rebuild. Your stored API key is tied to the
+signature the same way, so a rebuilt copy asks for your login password before it
+can read the key back. If you have a developer account,
 `cp Config/Local.xcconfig.example Config/Local.xcconfig`, put your team ID in it,
 and the grants stick. That file is gitignored.
 

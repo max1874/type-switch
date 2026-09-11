@@ -62,6 +62,38 @@ enum WindowCapture {
             return true
         }
 
+        // The model list is a sheet, and a sheet is its own window that the
+        // window server will not hand back through its parent's id. Hosting it
+        // directly is what makes it possible to look at at all.
+        if arguments.contains("--models-sheet") {
+            let window = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 420, height: 400),
+                styleMask: [.titled, .fullSizeContentView],
+                backing: .buffered,
+                defer: false
+            )
+            window.contentView = NSHostingView(
+                rootView: ModelPicker(baseURL: Prefs.baseURL, model: .constant(""))
+            )
+            window.titlebarAppearsTransparent = true
+            window.titleVisibility = .hidden
+            window.center()
+            NSApp.setActivationPolicy(.regular)
+            window.makeKeyAndOrderFront(nil)
+            // Longer than the settings window needs, because this one is not
+            // finished drawing until the address has answered.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                NSApp.activate(ignoringOtherApps: true)
+                window.makeKeyAndOrderFront(nil)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+                    window.makeFirstResponder(nil)
+                    write(window: window, to: path)
+                    exit(0)
+                }
+            }
+            return true
+        }
+
         var height = 540.0
         if let given = arguments.firstIndex(of: "--height"),
            arguments.indices.contains(given + 1) {

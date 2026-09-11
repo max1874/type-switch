@@ -2,6 +2,22 @@
   "sourceLanguage": "zh-Hans",
   "strings": {
     "": {},
+    "%lld 个": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld models"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 个"
+          }
+        }
+      }
+    },
     "AI 服务": {
       "localizations": {
         "en": {
@@ -38,6 +54,38 @@
         }
       }
     },
+    "Key 不对，或者它没有权限用这个模型：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The key is wrong, or it is not allowed to use this model: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key 不对，或者它没有权限用这个模型：%@"
+          }
+        }
+      }
+    },
+    "Key 存在你的钥匙串里，只发给上面这个地址。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your key is stored in your keychain and sent only to the address above."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key 存在你的钥匙串里，只发给上面这个地址。"
+          }
+        }
+      }
+    },
     "OpenAI 兼容": {
       "localizations": {
         "en": {
@@ -54,6 +102,7 @@
         }
       }
     },
+    "POST /chat/completions": {},
     "TypeSwitch 设置": {
       "localizations": {
         "en": {
@@ -199,6 +248,38 @@
         }
       }
     },
+    "列出这个地址上有哪些模型": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "List the models this address has"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "列出这个地址上有哪些模型"
+          }
+        }
+      }
+    },
+    "到 %@ 拿 Key": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a key from %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "到 %@ 拿 Key"
+          }
+        }
+      }
+    },
     "发给模型的原话，其中 %@ 会替换成上面的输出语言。删光等同于用回内置指令。": {
       "localizations": {
         "en": {
@@ -211,6 +292,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "发给模型的原话，其中 %@ 会替换成上面的输出语言。删光等同于用回内置指令。"
+          }
+        }
+      }
+    },
+    "取模型列表失败（%lld）：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not list the models (%lld): %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "取模型列表失败（%1$lld）：%2$@"
+          }
+        }
+      }
+    },
+    "取消": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
+          }
+        }
+      }
+    },
+    "只说一种格式：%@ 的 %@。任何说这套格式的地址都可以填。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One format: %1$@, over %2$@. Any address that speaks it works here."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "只说一种格式：%1$@ 的 %2$@。任何说这套格式的地址都可以填。"
           }
         }
       }
@@ -311,6 +440,22 @@
         }
       }
     },
+    "地址或模型不对，接口说找不到：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The address or the model is wrong — the endpoint could not find it: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地址或模型不对，接口说找不到：%@"
+          }
+        }
+      }
+    },
     "处理中…": {
       "localizations": {
         "en": {
@@ -323,6 +468,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "处理中…"
+          }
+        }
+      }
+    },
+    "对方服务出错了（%lld），不是你的配置问题：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The service itself failed (%lld). Nothing is wrong with your settings: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "对方服务出错了（%1$lld），不是你的配置问题：%2$@"
           }
         }
       }
@@ -647,6 +808,22 @@
         }
       }
     },
+    "改写请求会发到这个地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The rewrite is sent to this URL"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "改写请求会发到这个地址"
+          }
+        }
+      }
+    },
     "文字已经被改动，没有写回": {
       "localizations": {
         "en": {
@@ -659,6 +836,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "文字已经被改动，没有写回"
+          }
+        }
+      }
+    },
+    "服务": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Service"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "服务"
           }
         }
       }
@@ -711,6 +904,22 @@
         }
       }
     },
+    "测试一句": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test a line"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "测试一句"
+          }
+        }
+      }
+    },
     "添加 app…": {
       "localizations": {
         "en": {
@@ -739,6 +948,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "点一下，然后按你想用的键；Esc 取消"
+          }
+        }
+      }
+    },
+    "点右边，让这个地址自己列出它有哪些模型。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use the button and this address will list the models it has."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点右边，让这个地址自己列出它有哪些模型。"
           }
         }
       }
@@ -791,6 +1016,22 @@
         }
       }
     },
+    "筛选": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filter"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "筛选"
+          }
+        }
+      }
+    },
     "缺少权限": {
       "localizations": {
         "en": {
@@ -819,6 +1060,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "网络错误：%@"
+          }
+        }
+      }
+    },
+    "自定义": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定义"
           }
         }
       }
@@ -903,6 +1160,22 @@
         }
       }
     },
+    "请求太密，等一会儿再试：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many requests too quickly. Try again in a moment: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请求太密，等一会儿再试：%@"
+          }
+        }
+      }
+    },
     "读不到 %@ 里的文字": {
       "localizations": {
         "en": {
@@ -915,6 +1188,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "读不到 %@ 里的文字"
+          }
+        }
+      }
+    },
+    "跑在这台机器上的模型通常不要 Key，留空就行。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A model running on this machine usually wants no key at all — leave it blank."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跑在这台机器上的模型通常不要 Key，留空就行。"
           }
         }
       }
@@ -963,6 +1252,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "这一行没有可转换的文字"
+          }
+        }
+      }
+    },
+    "这不是一个能用的地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That is not a usable address"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这不是一个能用的地址"
+          }
+        }
+      }
+    },
+    "这个地址上的模型": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Models on this address"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个地址上的模型"
+          }
+        }
+      }
+    },
+    "这个地址不提供模型列表，模型名要自己填": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This address does not offer a model list, so the model name has to be typed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个地址不提供模型列表，模型名要自己填"
+          }
+        }
+      }
+    },
+    "这个地址要先有正确的 Key 才肯列出模型": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This address will not list its models without a correct key"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个地址要先有正确的 Key 才肯列出模型"
           }
         }
       }
@@ -1075,6 +1428,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "选择"
+          }
+        }
+      }
+    },
+    "重试": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try again"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试"
           }
         }
       }
