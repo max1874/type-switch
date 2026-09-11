@@ -7,7 +7,6 @@
     <img alt="Swift" src="https://img.shields.io/badge/Swift-5.9%2B-F05138?logo=swift&logoColor=white">
     <img alt="PolyForm Noncommercial License" src="https://img.shields.io/badge/license-Noncommercial-f59e0b">
     <img alt="No dependencies" src="https://img.shields.io/badge/dependencies-none-06b6d4">
-    <a href="https://github.com/max1874/type-switch/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/max1874/type-switch/actions/workflows/ci.yml/badge.svg"></a>
   </p>
   <p><a href="https://github.com/max1874/type-switch/releases/latest"><strong>下载最新 DMG</strong></a> · <a href="README.md">English</a></p>
 </div>
