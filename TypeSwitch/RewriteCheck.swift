@@ -32,6 +32,15 @@ enum RewriteCheck {
         }
         let text = arguments[flag + 1]
 
+        // Nothing to set up here: `Glossary` reads TYPESWITCH_GLOSSARY itself
+        // when it is a debug build, so the list belongs to this process and
+        // never touches the stored one. Reported because "did the term list
+        // parse" is the first question when a protected word comes back
+        // translated.
+        if ProcessInfo.processInfo.environment["TYPESWITCH_GLOSSARY"] != nil {
+            print("glossary: \(Glossary.terms.count) terms")
+        }
+
         print("\(Prefs.baseURL)  \(Prefs.model)  key: \(Prefs.apiKey.isEmpty ? "none" : "set")")
         let started = Date()
         Task {
