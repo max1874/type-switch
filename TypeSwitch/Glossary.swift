@@ -82,6 +82,22 @@ enum Glossary {
     /// Everything the user has written, in the order they wrote it.
     static var terms: [GlossaryTerm] {
         get {
+            #if DEBUG
+            // A list handed in for a one-off check, so that checking what a
+            // term list does to a request does not mean overwriting the term
+            // list the user is using. Read here rather than set into the
+            // defaults by the caller: a debug build shares the shipping bundle
+            // identifier, so anything written to standard defaults is written
+            // to the config the installed app reads — and the argument domain
+            // cannot be used either, since setting it replaces the arguments
+            // that name the endpoint under test.
+            //
+            // See RewriteCheck.
+            if let given = ProcessInfo.processInfo.environment["TYPESWITCH_GLOSSARY"],
+               !given.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                return GlossaryTerm.parse(given)
+            }
+            #endif
             guard let data = UserDefaults.standard.data(forKey: PrefKey.glossary),
                   let stored = try? JSONDecoder().decode([GlossaryTerm].self, from: data)
             else { return [] }
