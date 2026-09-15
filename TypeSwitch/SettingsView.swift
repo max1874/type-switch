@@ -1,3 +1,4 @@
+import ApplicationServices
 import SwiftUI
 
 struct SettingsView: View {
@@ -78,6 +79,211 @@ private struct PaneRow: View {
         }
         .padding(.vertical, 2)
     }
+}
+
+/// The whole of a first launch, and the answer to "why does nothing happen".
+///
+/// A window rather than a dialog: it is a list of things to go and do in
+/// System Settings, and it has to stay on screen while they are done. The
+/// permission state refreshes on every activation, so granting one and coming
+/// back turns its row green without the user having to relaunch anything.
+struct SetupView: View {
+    @AppStorage(PrefKey.needsSetup) private var needsSetup = true
+
+    @State private var hasAccessibility = Permissions.hasAccessibility
+    @State private var hasInputMonitoring = Permissions.hasInputMonitoring
+    @State private var sample = ""
+    @State private var outcome: SetupOutcome?
+    @State private var testing = false
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("TypeSwitch 要怎么用").font(.title2.weight(.semibold))
+                    Text("在任意输入框里写下句子，卡住的地方直接用别的语言顶上——然后在 0.30 秒内连按三次空格。整行会被改写成输出语言。")
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("先给两个权限").font(.headline)
+
+                    PermissionRow(
+                        title: "辅助功能",
+                        why: "用来读你光标所在的那一行，并把改写结果写回去。",
+                        granted: hasAccessibility,
+                        open: { Permissions.openAccessibilitySettings() }
+                    )
+                    PermissionRow(
+                        title: "输入监控",
+                        why: "用来发现你按了触发键。它只旁听，不拦、不改任何按键。",
+                        granted: hasInputMonitoring,
+                        open: { Permissions.openInputMonitoringSettings() }
+                    )
+
+                    Text("两个都给完就会自动生效，不用重开。")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+
+                Divider()
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("在这儿试一句").font(.headline)
+                    Text("这里读的是 TypeSwitch 自己的窗口，所以这个自检只证明两件事已经通了：权限、还有你配好的接口。真正改文字时读的是别的 app。")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    TextEditor(text: $sample)
+                        .font(.system(size: 12))
+                        .scrollContentBackground(.hidden)
+                        .frame(height: 62)
+                        .padding(8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color(nsColor: .textBackgroundColor))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .strokeBorder(Color(nsColor: .separatorColor))
+                        )
+
+                    HStack(spacing: 10) {
+                        Button("试试", action: runTest)
+                            .disabled(testing)
+                        if testing { ProgressView().controlSize(.small) }
+                        Spacer()
+                        Button("完成") { finish() }
+                    }
+                    result
+                }
+            }
+            .padding(24)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .alert("读不到这段文字", isPresented: unreadableAlert) {
+            Button("好") {}
+        } message: {
+            Text("这通常说明上面两个权限还没生效。给完之后再试一次。")
+        }
+        .onAppear(perform: refresh)
+        .onReceive(NotificationCenter.default.publisher(
+            for: NSApplication.didBecomeActiveNotification
+        )) { _ in refresh() }
+    }
+
+    /// The one failure worth a dialog: it is the shape a missing grant takes,
+    /// and the row above already says what to do about it.
+    private var unreadableAlert: Binding<Bool> {
+        Binding(
+            get: { if case .unreadable = outcome { return true } else { return false } },
+            set: { if !$0, case .unreadable = outcome { outcome = nil } }
+        )
+    }
+
+    private func refresh() {
+        hasAccessibility = Permissions.hasAccessibility
+        hasInputMonitoring = Permissions.hasInputMonitoring
+    }
+
+    private func finish() {
+        needsSetup = false
+        // Answers "did it take" without making the user find the menu bar.
+        Notice.show(String(localized: "已经可以用了：在任意输入框里连按三次空格"))
+        SettingsWindow.open(pane: .trigger)
+        SetupWindow.close()
+    }
+
+    private func runTest() {
+        let text = sample.trimmingCharacters(in: .whitespacesAndNewlines)
+        let line = text.isEmpty ? String(localized: "writing English 卡住了？") : text
+
+        testing = true
+        outcome = nil
+        Task {
+            do {
+                // The real capture path, so a pass means the grant is live
+                // rather than that the endpoint answers.
+                let capture = try TextAccess.capture()
+                let source = capture.text.isEmpty ? line : capture.text
+                let rewritten = try await Rewriter.rewrite(source)
+                outcome = .ok(rewritten)
+            } catch let error as TextAccessError {
+                outcome = .unreadable(error.localizedDescription)
+            } catch {
+                outcome = .failed(error.localizedDescription)
+            }
+            testing = false
+        }
+    }
+
+    @ViewBuilder
+    private var result: some View {
+        switch outcome {
+        case .ok(let text):
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                Text(text).textSelection(.enabled)
+            }
+            .font(.callout)
+            .fixedSize(horizontal: false, vertical: true)
+        case .failed(let message):
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
+                Text(message).textSelection(.enabled)
+            }
+            .font(.callout)
+            .fixedSize(horizontal: false, vertical: true)
+        case .unreadable, nil:
+            EmptyView()
+        }
+    }
+}
+
+/// One grant, its state, and the switch for it.
+private struct PermissionRow: View {
+    let title: LocalizedStringKey
+    let why: LocalizedStringKey
+    let granted: Bool
+    let open: () -> Void
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: granted ? "checkmark.circle.fill" : "circle")
+                .foregroundStyle(granted ? Color.green : Color.secondary)
+                .font(.system(size: 15))
+                .padding(.top, 1)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).fontWeight(.medium)
+                Text(why)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 12)
+
+            if granted {
+                Text("已开启")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            } else {
+                Button("打开系统设置", action: open)
+            }
+        }
+    }
+}
+
+/// Result of the setup window's self-check.
+private enum SetupOutcome {
+    case ok(String)
+    case failed(String)
+    /// Kept apart from `failed` because a read that produced nothing is the
+    /// missing-permission case, and the answer to it is the two rows above
+    /// rather than the endpoint's error.
+    case unreadable(String)
 }
 
 // MARK: - General
@@ -274,6 +480,11 @@ private struct ProviderPane: View {
     @AppStorage(PrefKey.systemPrompt) private var prompt = Rewriter.defaultSystemPrompt
     @AppStorage(PrefKey.targetLanguage) private var targetLanguage = "English"
 
+    /// The glossary is held as the text the user typed and saved only when it
+    /// parses into something: an entry mid-way through being written is a fine
+    /// thing to have in the field and a pointless thing to store.
+    @State private var glossary = Glossary.text
+
     // The field never shows the stored key. A SecureField renders dots either
     // way, so reading the secret back to fill it in buys nothing — and reading
     // it is exactly what raises the keychain's access prompt. Whether one is
@@ -443,12 +654,51 @@ private struct ProviderPane: View {
                 }
             }
 
+            Section {
+                Explained(text: "一行一条，会被追加到上面的改写指令后面。只写词：这个词原样保留，不翻译。中间加上 → 或 ->：永远译成后面那种写法。以 # 开头的行是注释。") {
+                    // Bound to the text rather than to the parsed list so that
+                    // the field being edited stays exactly what was typed: a
+                    // round trip through the parser would drop the half-written
+                    // line under the cursor as the user was still typing it.
+                    TextEditor(text: $glossary)
+                        .font(.system(size: 11, design: .monospaced))
+                        .scrollContentBackground(.hidden)
+                        .frame(height: 96)
+                        .padding(8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color(nsColor: .textBackgroundColor))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .strokeBorder(Color(nsColor: .separatorColor))
+                        )
+                }
+            } header: {
+                HStack {
+                    Text("术语表")
+                    Spacer()
+                    Text(glossaryTermCount)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
         }
         .formStyle(.grouped)
+        .onChange(of: glossary) { _, text in Glossary.text = text }
         .onDisappear(perform: commitKey)
         .sheet(isPresented: $choosingModel) {
             ModelPicker(baseURL: baseURL, model: $model)
         }
+    }
+
+    /// Counted as the field is typed rather than when it is left: the number is
+    /// there to confirm that a line was understood, and confirmation that
+    /// arrives after the user has moved on is not confirmation.
+    private var glossaryTermCount: LocalizedStringKey {
+        let count = GlossaryTerm.parse(glossary).count
+        return count == 0 ? "还没有术语" : "\(count) 条术语"
     }
 
     // MARK: Address

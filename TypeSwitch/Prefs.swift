@@ -163,7 +163,9 @@ enum PrefKey {
     static let providerModel = "providerModel"
     static let systemPrompt = "systemPrompt"
     static let targetLanguage = "targetLanguage"
+    static let glossary = "glossary"
     static let checkForUpdates = "checkForUpdates"
+    static let needsSetup = "needsSetup"
 }
 
 /// Read side of the settings. The UI writes the same keys through @AppStorage,
@@ -243,6 +245,17 @@ enum Prefs {
         }
         #endif
         return (Keychain.apiKey ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Whether the app still owes the user an introduction.
+    ///
+    /// True until the setup window is dismissed, and true again whenever a
+    /// grant that was there has gone — which happens when the app is replaced
+    /// by a copy signed differently, and is exactly the case where the user has
+    /// no way to tell why nothing works.
+    static var needsSetup: Bool {
+        guard UserDefaults.standard.bool(forKey: PrefKey.needsSetup) else { return true }
+        return !Permissions.hasAccessibility || !Permissions.hasInputMonitoring
     }
 
     static func registerDefaults() {
