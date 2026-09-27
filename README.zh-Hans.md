@@ -192,4 +192,4 @@ make clean     # 清掉 build/
 
 ## 许可
 
-[MIT](LICENSE) © 2026 Max
+[MIT](LICENSE) © 2026 MAX LIN

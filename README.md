@@ -227,4 +227,4 @@ event tap or read another app's text.
 
 ## License
 
-[MIT](LICENSE) © 2026 Max
+[MIT](LICENSE) © 2026 MAX LIN
