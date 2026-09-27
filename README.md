@@ -5,7 +5,7 @@
   <p>
     <img alt="macOS 14+" src="https://img.shields.io/badge/macOS-14%2B-111827?logo=apple">
     <img alt="Swift" src="https://img.shields.io/badge/Swift-5.9%2B-F05138?logo=swift&logoColor=white">
-    <img alt="PolyForm Noncommercial License" src="https://img.shields.io/badge/license-Noncommercial-f59e0b">
+    <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-22c55e">
     <img alt="No dependencies" src="https://img.shields.io/badge/dependencies-none-06b6d4">
   </p>
   <p><a href="https://github.com/max1874/type-switch/releases/latest"><strong>Download the latest DMG</strong></a> · <a href="README.zh-Hans.md">简体中文</a></p>
@@ -227,9 +227,4 @@ event tap or read another app's text.
 
 ## License
 
-[PolyForm Noncommercial 1.0.0](LICENSE) © 2026 Max.
-
-Free to use, change, and share for any noncommercial purpose — personal work,
-research, teaching, charity. Commercial use needs a separate licence; open an
-issue. This is source-available rather than open source: an open-source licence
-cannot restrict the field of use, and this one does.
+[MIT](LICENSE) © 2026 Max
