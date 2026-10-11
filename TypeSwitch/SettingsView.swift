@@ -339,7 +339,7 @@ private struct ProviderPane: View {
             Section {
                 Picker("服务", selection: serviceName) {
                     ForEach(KnownEndpoint.all, id: \.name) { endpoint in
-                        Text(endpoint.name).tag(endpoint.name)
+                        ServiceLabel(endpoint: endpoint).tag(endpoint.name)
                     }
                     // Offered only when that is already the situation: custom is
                     // a state you end up in by typing an address, not an action.
