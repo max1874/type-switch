@@ -9,12 +9,20 @@ enum TextAccessPath: String {
 struct TextCapture {
     let text: String
     let path: TextAccessPath
-    /// Present only on the AX path.
+    /// The focused element at capture time, on both paths.
+    ///
+    /// On the AX path it is where the text is. On the pasteboard path it is
+    /// only ever read, to answer one question at write time: is the thing that
+    /// was focused a moment ago still focused? The frontmost app is not enough
+    /// of an answer — the user can move between two fields of the same app
+    /// inside the second a rewrite takes, and pasting into the second one is
+    /// exactly the corruption the PID check was written to prevent.
     let element: AXUIElement?
-    /// Where `text` sits, on the AX path. The selection is only applied at
-    /// write time — selecting during capture would leave the range selected
-    /// while the trigger keystrokes are still in flight, and the next one to
-    /// arrive would overwrite it.
+    /// Where `text` sits. On the AX path the selection is only applied at write
+    /// time — selecting during capture would leave the range selected while the
+    /// trigger keystrokes are still in flight, and the next one to arrive would
+    /// overwrite it. On the pasteboard path it is the selection as it was found,
+    /// and it exists so a failed read can put it back.
     let range: NSRange?
     /// The app that was frontmost when the text was read. A rewrite takes about
     /// a second, which is long enough for the user to switch windows — writing
@@ -33,6 +41,7 @@ enum TextAccessError: LocalizedError {
     case unreadable(String)
     case axWriteFailed(AXError)
     case appChanged
+    case fieldChanged
     case contentChanged
 
     var errorDescription: String? {
@@ -42,6 +51,7 @@ enum TextAccessError: LocalizedError {
         case .unreadable(let app): String(localized: "读不到 \(app) 里的文字")
         case .axWriteFailed(let err): String(localized: "写回失败（AXError \(Int(err.rawValue))）")
         case .appChanged: String(localized: "焦点已经切走，没有写回")
+        case .fieldChanged: String(localized: "输入框已经换了一个，没有写回")
         case .contentChanged: String(localized: "文字已经被改动，没有写回")
         }
     }
@@ -72,6 +82,12 @@ enum TextAccess {
         guard NSWorkspace.shared.frontmostApplication?.processIdentifier == capture.frontmostPID
         else { throw TextAccessError.appChanged }
 
+        // The app is the same one; whether the same field in it is focused is a
+        // separate question, and the one that decides where a paste lands.
+        if let element = capture.element, !isFocused(element) {
+            throw TextAccessError.fieldChanged
+        }
+
         switch capture.path {
         case .accessibility:
             guard let element = capture.element, let range = capture.range else {
@@ -98,6 +114,14 @@ enum TextAccess {
             log.info("AX write did not take (AXError \(err.rawValue, privacy: .public)), pasting instead")
             try writeViaPasteboard(text)
         case .pasteboard:
+            // The paste goes wherever the caret is now, and there is no range to
+            // compare against — only the selection the copy was taken from. A
+            // selection that has moved means the user is somewhere else in the
+            // document than where they triggered.
+            if let element = capture.element, let range = capture.range,
+               let now = copyRange(element, kAXSelectedTextRangeAttribute), now != range {
+                throw TextAccessError.contentChanged
+            }
             try writeViaPasteboard(text)
         }
     }
@@ -156,6 +180,17 @@ enum TextAccess {
         return (value as! AXUIElement)
     }
 
+    /// Whether this element is still the focused one.
+    ///
+    /// `CFEqual` rather than `==`: two AXUIElement references are equal when
+    /// they describe the same element, and a fresh call for the focused element
+    /// returns a new reference every time. Comparing references would call every
+    /// field a change and refuse to write anything.
+    private static func isFocused(_ element: AXUIElement) -> Bool {
+        guard let current = focusedElement() else { return false }
+        return CFEqual(current, element)
+    }
+
     private static func copyString(_ element: AXUIElement, _ attribute: String) -> String? {
         var value: CFTypeRef?
         guard AXUIElementCopyAttributeValue(element, attribute as CFString, &value) == .success
@@ -205,6 +240,15 @@ enum TextAccess {
         let saved = savedItems(of: pasteboard)
         defer { restore(saved, to: pasteboard) }
 
+        // Read before anything is synthesized, because the way this path finds
+        // the line — ⇧⌘← — is itself an edit to the selection, and these are
+        // what it has to be put back to if the read comes up empty.
+        //
+        // Nothing in the AX path needs the element, so a nil one here costs the
+        // capture nothing; it is kept for the write-time check above.
+        let focused = focusedElement()
+        let selection = focused.flatMap { copyRange($0, kAXSelectedTextRangeAttribute) }
+
         HotkeyMonitor.suppressed = true
         defer { HotkeyMonitor.suppressed = false }
 
@@ -212,7 +256,7 @@ enum TextAccess {
         // the pasteboard is never going to move, and that is the ordinary case
         // — every trigger would pay for a longer one.
         if let copied = copyOnce(pasteboard, waiting: 0.25), !copied.isEmpty {
-            return capture(copied)
+            return capture(copied, element: focused, range: selection)
         }
 
         // Select the line, then copy it. This one is worth both waiting for and
@@ -225,15 +269,29 @@ enum TextAccess {
         for attempt in 0..<3 {
             if let copied = copyOnce(pasteboard, waiting: 0.4 + Double(attempt) * 0.3),
                !copied.isEmpty {
-                return capture(copied)
+                // The line is selected now, not whatever was selected before.
+                // Handing that back is what lets the write check tell a caret
+                // that has moved from one that is where we left it.
+                let line = focused.flatMap { copyRange($0, kAXSelectedTextRangeAttribute) }
+                return capture(copied, element: focused, range: line)
             }
+        }
+
+        // Giving up, and putting the selection back first. Selecting the line is
+        // the only thing this app does to a document it is not rewriting, and
+        // leaving it selected after failing to read it would silently replace
+        // whatever the user had chosen with a line they did not.
+        if let focused, let selection {
+            try? setRange(focused, selection)
         }
         throw TextAccessError.unreadable(frontmostName())
     }
 
-    private static func capture(_ text: String) -> TextCapture {
-        TextCapture(text: text, path: .pasteboard, element: nil,
-                    range: nil, frontmostPID: frontmostPID())
+    private static func capture(
+        _ text: String, element: AXUIElement?, range: NSRange?
+    ) -> TextCapture {
+        TextCapture(text: text, path: .pasteboard, element: element,
+                    range: range, frontmostPID: frontmostPID())
     }
 
     /// One ⌘C, and a wait for the app to serve it. Returns as soon as the

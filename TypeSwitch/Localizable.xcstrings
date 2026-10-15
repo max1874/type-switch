@@ -1787,6 +1787,438 @@
           }
         }
       }
+    },
+    "辅助功能": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accessibility"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "辅助功能"
+          }
+        }
+      }
+    },
+    "输入监控": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Input Monitoring"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入监控"
+          }
+        }
+      }
+    },
+    "权限与自检…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permissions & Check…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "权限与自检…"
+          }
+        }
+      }
+    },
+    "① 打开辅助功能权限…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "① Open Accessibility…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "① 打开辅助功能权限…"
+          }
+        }
+      }
+    },
+    "② 打开输入监控权限…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "② Open Input Monitoring…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "② 打开输入监控权限…"
+          }
+        }
+      }
+    },
+    "权限都齐了": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Both permissions are in place"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "权限都齐了"
+          }
+        }
+      }
+    },
+    "打开设置…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开设置…"
+          }
+        }
+      }
+    },
+    "改写中…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rewriting…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "改写中…"
+          }
+        }
+      }
+    },
+    "读不到这段文字": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The text could not be read"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "读不到这段文字"
+          }
+        }
+      }
+    },
+    "TypeSwitch 要怎么用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How TypeSwitch is used"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TypeSwitch 要怎么用"
+          }
+        }
+      }
+    },
+    "在任意输入框里写下句子，卡住的地方直接用别的语言顶上——然后在 0.30 秒内连按三次空格。整行会被改写成输出语言。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write in any text field, and where you get stuck drop in whatever language reaches your fingers — then tap Space three times within 0.30 seconds. The line is rewritten into your output language."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在任意输入框里写下句子，卡住的地方直接用别的语言顶上——然后在 0.30 秒内连按三次空格。整行会被改写成输出语言。"
+          }
+        }
+      }
+    },
+    "先给两个权限": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Two permissions first"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "先给两个权限"
+          }
+        }
+      }
+    },
+    "用来读你光标所在的那一行，并把改写结果写回去。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To read the line your cursor is on, and to write the rewrite back."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用来读你光标所在的那一行，并把改写结果写回去。"
+          }
+        }
+      }
+    },
+    "用来发现你按了触发键。它只旁听，不拦、不改任何按键。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To notice the trigger key. It only listens — it never blocks or changes a keystroke."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用来发现你按了触发键。它只旁听，不拦、不改任何按键。"
+          }
+        }
+      }
+    },
+    "两个都给完就会自动生效，不用重开。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Both take effect on their own once granted. No relaunch needed."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "两个都给完就会自动生效，不用重开。"
+          }
+        }
+      }
+    },
+    "在这儿试一句": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try a line here"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在这儿试一句"
+          }
+        }
+      }
+    },
+    "这里读的是 TypeSwitch 自己的窗口，所以这个自检只证明两件事已经通了：权限、还有你配好的接口。真正改文字时读的是别的 app。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This reads TypeSwitch's own window, so the check only proves two things are in place: the permissions, and the endpoint you configured. A real rewrite reads another app."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这里读的是 TypeSwitch 自己的窗口，所以这个自检只证明两件事已经通了：权限、还有你配好的接口。真正改文字时读的是别的 app。"
+          }
+        }
+      }
+    },
+    "试试": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try it"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "试试"
+          }
+        }
+      }
+    },
+    "这通常说明上面两个权限还没生效。给完之后再试一次。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That usually means the two permissions above are not in effect yet. Grant them and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这通常说明上面两个权限还没生效。给完之后再试一次。"
+          }
+        }
+      }
+    },
+    "已经可以用了：在任意输入框里连按三次空格": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ready: tap Space three times in any text field"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已经可以用了：在任意输入框里连按三次空格"
+          }
+        }
+      }
+    },
+    "术语表": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glossary"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "术语表"
+          }
+        }
+      }
+    },
+    "还没有术语": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No terms yet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有术语"
+          }
+        }
+      }
+    },
+    "%lld 条术语": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld terms"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 条术语"
+          }
+        }
+      }
+    },
+    "一行一条，会被追加到上面的改写指令后面。只写词：这个词原样保留，不翻译。中间加上 → 或 ->：永远译成后面那种写法。以 # 开头的行是注释。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One per line, appended to the rewrite instructions above. A term on its own is kept exactly as written and never translated. With → or -> between the two, it is always rendered the second way. A line starting with # is a comment."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一行一条，会被追加到上面的改写指令后面。只写词：这个词原样保留，不翻译。中间加上 → 或 ->：永远译成后面那种写法。以 # 开头的行是注释。"
+          }
+        }
+      }
+    },
+    "这一行太长，模型没写完就停了，所以没有写回。选中短一点的一段再试。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That line was too long and the model stopped before finishing, so nothing was written back. Select a shorter passage and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这一行太长，模型没写完就停了，所以没有写回。选中短一点的一段再试。"
+          }
+        }
+      }
+    },
+    "对方一直说忙（%lld），已经试过两次。等一会儿再触发一次。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The endpoint kept saying it was busy (%lld) after two tries. Trigger again in a moment."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对方一直说忙（%lld），已经试过两次。等一会儿再触发一次。"
+          }
+        }
+      }
+    },
+    "输入框已经换了一个，没有写回": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A different text field is focused, so nothing was written back"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入框已经换了一个，没有写回"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
