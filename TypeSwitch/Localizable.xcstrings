@@ -118,18 +118,18 @@
         }
       }
     },
-    "Key 存在你的钥匙串里，只发给上面这个地址。": {
+    "每个服务各存一个 Key，存在你的钥匙串里，只发给上面这个地址。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your key is stored in your keychain and sent only to the address above."
+            "value": "Each service keeps its own key, stored in your keychain and sent only to the address above."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Key 存在你的钥匙串里，只发给上面这个地址。"
+            "value": "每个服务各存一个 Key，存在你的钥匙串里，只发给上面这个地址。"
           }
         }
       }

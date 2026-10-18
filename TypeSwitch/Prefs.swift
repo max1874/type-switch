@@ -100,12 +100,15 @@ enum APIFormat: String, CaseIterable, Identifiable {
 /// An address worth having on hand, so that nothing has to be typed from
 /// memory.
 ///
-/// Not a setting: choosing one fills the fields in and is then forgotten, and
-/// nothing downstream asks which one was chosen. What is stored is the address
-/// and the model, because that is all the request needs. The service is
-/// recognised back from the address when the window is next opened, which is
-/// what lets the window say "DeepSeek" instead of making the user read a URL.
+/// Not a setting: choosing one fills the fields in and is then forgotten. What
+/// is stored is the address and the model, because that is all the request
+/// needs. The service is recognised back from the address when the window is
+/// next opened, which is what lets the window say "DeepSeek" instead of making
+/// the user read a URL — and what picks the service's own key (`Keychain`).
 struct KnownEndpoint {
+    /// Names the service's keychain item, so it never changes; `name` is
+    /// localized.
+    var id: String
     var name: String
     var format: APIFormat
     var baseURL: String
@@ -115,19 +118,19 @@ struct KnownEndpoint {
     var keyURL: String?
 
     static let all: [KnownEndpoint] = [
-        KnownEndpoint(name: "DeepSeek", format: .openAICompatible,
+        KnownEndpoint(id: "deepseek", name: "DeepSeek", format: .openAICompatible,
                       baseURL: "https://api.deepseek.com", model: "deepseek-v4-flash",
                       keyURL: "https://platform.deepseek.com/api_keys"),
-        KnownEndpoint(name: "OpenRouter", format: .openAICompatible,
+        KnownEndpoint(id: "openrouter", name: "OpenRouter", format: .openAICompatible,
                       baseURL: "https://openrouter.ai/api/v1", model: "openai/gpt-4o-mini",
                       keyURL: "https://openrouter.ai/keys"),
-        KnownEndpoint(name: "OpenAI", format: .openAICompatible,
+        KnownEndpoint(id: "openai", name: "OpenAI", format: .openAICompatible,
                       baseURL: "https://api.openai.com/v1", model: "gpt-5-mini",
                       keyURL: "https://platform.openai.com/api-keys"),
-        KnownEndpoint(name: "Moonshot", format: .openAICompatible,
+        KnownEndpoint(id: "moonshot", name: "Moonshot", format: .openAICompatible,
                       baseURL: "https://api.moonshot.cn/v1", model: "moonshot-v1-8k",
                       keyURL: "https://platform.moonshot.cn/console/api-keys"),
-        KnownEndpoint(name: String(localized: "本地 Ollama"), format: .openAICompatible,
+        KnownEndpoint(id: "ollama", name: String(localized: "本地 Ollama"), format: .openAICompatible,
                       baseURL: "http://localhost:11434/v1", model: "qwen2.5:7b",
                       keyURL: nil),
     ]
@@ -242,7 +245,8 @@ enum Prefs {
             return given.trimmingCharacters(in: .whitespacesAndNewlines)
         }
         #endif
-        return (Keychain.apiKey ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return (Keychain.apiKey(forBaseURL: baseURL) ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     static func registerDefaults() {

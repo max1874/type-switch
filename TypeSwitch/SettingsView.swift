@@ -280,7 +280,7 @@ private struct ProviderPane: View {
     // stored can be answered without touching the secret; the secret itself is
     // read only when a request is actually made.
     @State private var apiKey = ""
-    @State private var hasStoredKey = Keychain.hasAPIKey
+    @State private var hasStoredKey = Keychain.hasAPIKey(forBaseURL: Prefs.baseURL)
     @State private var keyEdited = false
     @FocusState private var keyFocused: Bool
 
@@ -357,6 +357,7 @@ private struct ProviderPane: View {
                     requestPreview
                 }
                 .onChange(of: baseURL) { outcome = nil }
+                .onChange(of: baseURL, switchKey)
 
                 VStack(alignment: .leading, spacing: 5) {
                     HStack(spacing: 6) {
@@ -388,7 +389,14 @@ private struct ProviderPane: View {
                         prompt: Text(hasStoredKey ? "已保存，输入可替换" : "sk-…")
                     )
                     .focused($keyFocused)
-                    .onChange(of: apiKey) { keyEdited = true; outcome = nil }
+                    // Saving empties the field, and that must not count as an
+                    // edit: the next save would store the empty field, which
+                    // deletes the key. Emptied by hand, the field held
+                    // something first, so the edit is already counted.
+                    .onChange(of: apiKey) { _, typed in
+                        if !typed.isEmpty { keyEdited = true }
+                        outcome = nil
+                    }
                     .onSubmit(commitKey)
                     // Written when you leave the field, not on every keystroke:
                     // typing one by hand used to put s, sk, sk-, sk-1 … into the
@@ -476,7 +484,7 @@ private struct ProviderPane: View {
     private var keyNote: LocalizedStringKey {
         service?.keyURL == nil && service != nil
             ? "跑在这台机器上的模型通常不要 Key，留空就行。"
-            : "Key 存在你的钥匙串里，只发给上面这个地址。"
+            : "每个服务各存一个 Key，存在你的钥匙串里，只发给上面这个地址。"
     }
 
     /// Empty means "leave what is stored alone" until the field has been
@@ -484,15 +492,28 @@ private struct ProviderPane: View {
     /// treating that as a deletion would throw the key away for opening the
     /// window. Emptied by hand, it is a deletion.
     private func commitKey() {
+        commitKey(forBaseURL: baseURL)
+    }
+
+    private func commitKey(forBaseURL baseURL: String) {
         guard keyEdited else { return }
         let trimmed = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        Keychain.apiKey = trimmed
+        Keychain.setAPIKey(trimmed, forBaseURL: baseURL)
         hasStoredKey = !trimmed.isEmpty
         keyEdited = false
         // Cleared so the placeholder can say it landed. A SecureField shows the
         // same row of dots whatever it holds, so the field itself can never be
         // the confirmation that anything was saved.
         apiKey = ""
+    }
+
+    /// Each service has its own key, so the field follows the service. A key
+    /// typed and not yet saved goes to the service it was typed for, and the
+    /// placeholder then says whether the new service already has one.
+    private func switchKey(from old: String, to new: String) {
+        guard Keychain.account(forBaseURL: old) != Keychain.account(forBaseURL: new) else { return }
+        commitKey(forBaseURL: old)
+        hasStoredKey = Keychain.hasAPIKey(forBaseURL: new)
     }
 
     // MARK: Check

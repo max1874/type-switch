@@ -97,6 +97,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         if UpdateCheck.runIfRequested() { return }
         #endif
 
+        Keychain.adoptSharedKey(forBaseURL: Prefs.baseURL)
+
         Permissions.requestAccessibility()
         Permissions.requestInputMonitoring()
 
