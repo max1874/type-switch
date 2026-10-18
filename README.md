@@ -11,6 +11,9 @@
   <p><a href="https://github.com/max1874/type-switch/releases/latest"><strong>Download the latest DMG</strong></a> · <a href="README.zh-Hans.md">简体中文</a></p>
 </div>
 
+> [!IMPORTANT]
+> **Archived (2026-10-18).** TypeSwitch is no longer developed. Everything it does now lives in **[Lumo](https://max1874.com/lumo/)**: turn on *Rewrite* in Lumo's settings and the same triple tap of Space rewrites the line you are writing, using your own API key with any OpenAI-compatible service. v1.0.4 stays downloadable here but will not be updated.
+
 You are writing in one language, you hit a phrase you don't have, so you type it
 in a language you do have and carry on. Tap the Space bar three times and the
 line becomes the language you were writing in.

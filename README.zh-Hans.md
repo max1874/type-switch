@@ -11,6 +11,9 @@
   <p><a href="https://github.com/max1874/type-switch/releases/latest"><strong>下载最新 DMG</strong></a> · <a href="README.md">English</a></p>
 </div>
 
+> [!IMPORTANT]
+> **已归档（2026-10-18）。** TypeSwitch 不再开发，它的功能都转到了 **[Lumo](https://max1874.com/lumo/)**：在 Lumo 设置里打开「边写边改」，同样是连按三次空格把正在写的那一行改写过来，模型同样用你自己的 API Key、任何 OpenAI 兼容接口。v1.0.4 仍可在这里下载，但不会再更新。
+
 你在用一种语言写东西，遇到一个词想不起来，就用另一种会的语言先打上去，接着往下
 写。连按三下空格，这一行就变回你本来在写的那种语言。
 
