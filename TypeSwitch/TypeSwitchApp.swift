@@ -97,7 +97,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         if UpdateCheck.runIfRequested() { return }
         #endif
 
+        #if !DEBUG
+        // Not from a debug build: it shares this keychain item with the
+        // installed copy, which would lose its key to a rename it cannot read.
         Keychain.adoptSharedKey(forBaseURL: Prefs.baseURL)
+        #endif
 
         Permissions.requestAccessibility()
         Permissions.requestInputMonitoring()

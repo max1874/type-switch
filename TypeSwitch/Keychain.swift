@@ -12,9 +12,13 @@ enum Keychain {
 
     /// The item holding the key for the service at this address. One key for
     /// all of them sent a key meant for one service to the next one picked.
-    /// Every address that is not a known service shares the custom item.
+    /// Every address that is not a known service shares the custom item. An
+    /// empty address is the default service's, as it is to `Prefs.baseURL` and
+    /// so to the request.
     static func account(forBaseURL baseURL: String) -> String {
-        "\(sharedAccount).\(KnownEndpoint.matching(baseURL)?.id ?? "custom")"
+        let address = baseURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? KnownEndpoint.default.baseURL : baseURL
+        return "\(sharedAccount).\(KnownEndpoint.matching(address)?.id ?? "custom")"
     }
 
     /// Whether a key is stored for this address, without reading it.
